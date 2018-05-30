@@ -4,6 +4,7 @@ import os
 import os.path
 import platform
 import requests
+import shutil
 import sys
 import tarfile
 from urllib.parse import urlparse
@@ -160,14 +161,12 @@ class WebDriverDownloaderBase:
             logger.info("Created symlink: {0} -> {1}".format(symlink_target, symlink_src))
             return tuple([symlink_src, symlink_target])
         elif platform.system() == "Windows":
-            driver_filename_with_path = os.path.join(extract_dir, driver_filename)
-            wrapper_filename = os.path.join(self.link_path, os.path.splitext(driver_filename)[0] + ".cmd")
-            if os.path.isfile(wrapper_filename):
-                logger.info("Wrapper script {0} already exists and will be overwritten.".format(wrapper_filename))
-            with open(wrapper_filename, mode="w") as fileobj:
-                fileobj.write("@" + driver_filename_with_path + " %*")
-            logger.info("Created wrapper script: {0} -> {1}".format(wrapper_filename, driver_filename_with_path))
-            return tuple([driver_filename_with_path, wrapper_filename])
+            src_file = os.path.join(extract_dir, driver_filename)
+            dest_file = os.path.join(self.link_path, driver_filename)
+            if os.path.isfile(dest_file):
+                logger.info("File {0} already exists and will be overwritten.".format(dest_file))
+            shutil.copy2(src_file, dest_file)
+            return tuple([src_file, dest_file])
 
 
 class GeckoDriverDownloader(WebDriverDownloaderBase):
