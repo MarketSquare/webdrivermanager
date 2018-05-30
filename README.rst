@@ -45,3 +45,5 @@ License
 -------
 
 This is released under an MIT license.  See the ``LICENSE`` file in this repository for more information.
+
+Consult the license terms of the providers of the WebDriver downloads prior to downloading / using the WebDrivers.

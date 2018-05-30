@@ -144,7 +144,7 @@ class WebDriverDownloaderBase:
                 logger.debug("Extracted files: {0}".format(", ".join(tar.getnames())))
         elif filename.lower().endswith(".zip"):
             with zipfile.ZipFile(os.path.join(self.download_path, filename), mode="r") as driver_zipfile:
-                zipfile.extractall(extract_dir)
+                driver_zipfile.extractall(extract_dir)
         driver_filename = self.get_driver_filename()
         if platform.system() in ['Darwin', 'Linux']:
             symlink_src = os.path.join(extract_dir, driver_filename)
