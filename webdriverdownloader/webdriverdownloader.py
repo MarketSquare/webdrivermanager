@@ -7,7 +7,10 @@ import requests
 import shutil
 import sys
 import tarfile
-from urllib.parse import urlparse
+try:
+    from urlparse import urlparse  # Python 2.x import
+except ImportError:
+    from urllib.parse import urlparse  # Python 3.x import
 import zipfile
 
 import tqdm
@@ -227,4 +230,58 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
 
         result = info.json()['assets'][filenames.index(filename)]['browser_download_url']
         logger.info("Download URL: {0}".format(result))
+        return result
+
+
+class ChromeDriverDownloader(WebDriverDownloaderBase):
+    """Class for downloading the Google Chrome WebDriver.
+    """
+
+    def get_driver_filename(self):
+        if platform.system() == "Windows":
+            return "chromedriver.exe"
+        else:
+            return "chromedriver"
+
+    def get_download_url(self, version="latest"):
+        """
+        Method for getting the download URL for the Google Chome driver binary.
+
+        :param version: String representing the version of the web driver binary to download.  For example, "2.39".
+                        Default if no version is specified is "latest".  The version string should match the version
+                        as specified on the download page of the webdriver binary.
+        :returns: The download URL for the Google Chrome driver binary.
+        """
+        chrome_driver_base_url = 'https://www.googleapis.com/storage/v1/b/chromedriver'
+        if version == "latest":
+            resp = requests.get(chrome_driver_base_url + '/o/LATEST_RELEASE')
+            if resp.status_code != 200:
+                error_message = "Error, unable to get version number for latest release, got code: {0}".format(resp.status_code)
+                logger.error(error_message)
+                raise RuntimeError(error_message)
+            latest_release = requests.get(resp.json()['mediaLink'])
+            version = latest_release.text
+
+        os_name = platform.system()
+        if os_name == "Darwin":
+            os_name = "mac"
+        elif os_name == "Windows":
+            os_name = "win"
+        elif os_name == "Linux":
+            os_name = "linux"
+        bitness = "64" if sys.maxsize > 2 ** 32 else "32"
+        logger.debug("Detected OS: {0}bit {1}".format(bitness, os_name))
+
+        chrome_driver_objects = requests.get(chrome_driver_base_url + '/o')
+        matching_versions = [item for item in chrome_driver_objects.json()['items'] if item['name'].startswith(version)]
+        os_matching_versions = [item for item in matching_versions if os_name in item['name']]
+        if not os_matching_versions:
+            error_message = "Error, unable to find appropriate download for {0}.".format(os_name + bitness)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+        elif len(os_matching_versions) == 1:
+            result = os_matching_versions[0]['mediaLink']
+        elif len(os_matching_versions) == 2:
+            result = [item for item in matching_versions if os_name + bitness in item['name']][0]['mediaLink']
+
         return result

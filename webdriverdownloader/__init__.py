@@ -1,6 +1,6 @@
 try:
-    from webdriverdownloader import GeckoDriverDownloader
+    from webdriverdownloader import ChromeDriverDownloader, GeckoDriverDownloader
 except ImportError:
-    from .webdriverdownloader import GeckoDriverDownloader
+    from .webdriverdownloader import ChromeDriverDownloader, GeckoDriverDownloader
 
-__all__ = ['GeckoDriverDownloader']
+__all__ = ['ChromeDriverDownloader', 'GeckoDriverDownloader']
