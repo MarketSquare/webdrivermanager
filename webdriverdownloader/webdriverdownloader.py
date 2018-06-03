@@ -167,8 +167,13 @@ class WebDriverDownloaderBase:
             with zipfile.ZipFile(os.path.join(self.get_download_path(version), filename), mode="r") as driver_zipfile:
                 driver_zipfile.extractall(extract_dir)
         driver_filename = self.get_driver_filename()
+        for root, dirs, files in os.walk(extract_dir):
+            for curr_file in files:
+                if curr_file == driver_filename:
+                    actual_driver_filename = os.path.join(root, curr_file)
+                    break
         if platform.system() in ['Darwin', 'Linux']:
-            symlink_src = glob.glob(extract_dir + "/**/" + driver_filename, recursive=True)[0]
+            symlink_src = actual_driver_filename
             symlink_target = os.path.join(self.link_path, driver_filename)
             if os.path.islink(symlink_target):
                 if os.path.samefile(symlink_src, symlink_target):
@@ -183,7 +188,7 @@ class WebDriverDownloaderBase:
             os.chmod(symlink_src, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
             return tuple([symlink_src, symlink_target])
         elif platform.system() == "Windows":
-            src_file = os.path.join(extract_dir, driver_filename)
+            src_file = actual_driver_filename
             dest_file = os.path.join(self.link_path, driver_filename)
             if os.path.isfile(dest_file):
                 logger.info("File {0} already exists and will be overwritten.".format(dest_file))
