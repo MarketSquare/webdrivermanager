@@ -12,6 +12,15 @@ This module is available on the Python Package Index (PyPI) and can be installed
 ``pip install webdriverdownloader``
 
 
+Dependencies
+------------
+
+This module is dependent on the following additional packages:
+
+- `requests <https://pypi.org/project/requests/>`_
+- `tqdm <https://pypi.org/project/tqdm/>`_
+
+
 Classes
 -------
 
