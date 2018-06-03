@@ -34,10 +34,14 @@ def parse_command_line():
 def main():
     args = parse_command_line()
     for browser in args.browser:
+        if ":" in browser:
+            browser, version = browser.split(":")
+        else:
+            version = "latest"
         if browser.lower() in downloaders.keys():
             print("Downloading WebDriver for browser: '{0}'".format(browser))
             downloader = downloaders[browser]()
-            extracted_binary, link = downloader.download_and_install()
+            extracted_binary, link = downloader.download_and_install(version)
             print("Driver binary downloaded to: {0}".format(extracted_binary))
             if os.path.islink(link):
                 print("Symlink created: {0}".format(link))
