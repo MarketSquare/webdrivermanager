@@ -41,7 +41,11 @@ class WebDriverDownloaderBase:
         if platform.system() in ['Darwin', 'Linux'] and os.geteuid() == 0:
             base_path = "/usr/local"
         else:
-            base_path = os.path.expanduser("~")
+            if 'VIRTUAL_ENV' in os.environ:
+                base_path = os.environ['VIRTUAL_ENV']
+            else:
+                base_path = os.path.expanduser("~")
+
 
         if download_root is None:
             self.download_root = os.path.join(base_path, "webdriver")
@@ -49,7 +53,10 @@ class WebDriverDownloaderBase:
             self.download_root = download_root
 
         if link_path is None:
-            self.link_path = os.path.join(base_path, "bin")
+            bin_location = "bin"
+            if 'VIRTUAL_ENV' in os.environ and platform.system() == "Windows":
+                bin_location = "Scripts"
+            self.link_path = os.path.join(base_path, bin_location)
         else:
             self.link_path = link_path
 
