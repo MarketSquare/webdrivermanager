@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 try:
     from webdrivermanager import ChromeDriverDownloader, GeckoDriverDownloader, OperaChromiumDriverDownloader
 except ImportError:
