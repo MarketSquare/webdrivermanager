@@ -1,7 +1,10 @@
-``webdriverdownloader``
+``webdrivermanager``
 =======================
 
 Python module to facilitate downloading and deploying `WebDriver <https://www.w3.org/TR/webdriver/>`_ binaries.  The classes in this module can be used to automatically search for and download the latest version (or a specific version) of a WebDriver binary (will download to ``$HOME/webdriver`` or ``/usr/local/webdriver`` if run with ``sudo``), extract the binary from the downloaded archive and create a symlink in either ``/usr/local/bin`` (if run with ``sudo``) or ``$HOME/bin``.
+
+
+This project is a fork of https://github.com/leonidessaguisagjr/webdriverdownloader
 
 
 Installation
@@ -9,7 +12,7 @@ Installation
 
 This module is available on the Python Package Index (PyPI) and can be installed as follows:
 
-``pip install webdriverdownloader``
+``pip install webdrivermanager``
 
 
 Dependencies
@@ -42,7 +45,7 @@ Example module usage
 
 Example::
 
-   >>> from webdriverdownloader import GeckoDriverDownloader
+   >>> from webdrivermanager import GeckoDriverDownloader
    >>> gdd = GeckoDriverDownloader()
    >>> gdd.download_and_install()
    1524kb [00:00, 1631.24kb/s]
@@ -62,7 +65,7 @@ Command line tool
 
 There is a command-line tool that is also available.  After installing the package, it can be used as follows (Windows example)::
 
-   > webdriverdownloader chrome:2.38 firefox opera:v.2.35
+   > webdrivermanager chrome:2.38 firefox opera:v.2.35
    Downloading WebDriver for browser: 'chrome'
    3300kb [00:00, 11216.38kb/s]
    Driver binary downloaded to: C:\Users\lsaguisag\webdriver\chrome\2.38\2.38%2Fchromedriver_win32\chromedriver.exe

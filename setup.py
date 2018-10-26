@@ -9,7 +9,7 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name='webdriverdownloader',
+setup(name='webdrivermanager',
       version='0.1.dev2',
       description='Module for facilitating download and deploy of WebDriver binaries.',
       long_description=long_description,
@@ -30,16 +30,16 @@ setup(name='webdriverdownloader',
             "Topic :: Software Development :: Testing",
             "Topic :: Utilities",
       ],
-      url='https://github.com/leonidessaguisagjr/webdriverdownloader',
-      author='Leonides T. Saguisag Jr.',
-      author_email='leonidessaguisagjr@gmail.com',
+      url='https://github.com/rasjani/webdrivermanager',
+      author='Jani Mikkonen'
+      author_email='jani.mikkonen@gmail.com',
       license='MIT',
-      packages=['webdriverdownloader'],
+      packages=['webdrivermanager'],
       install_requires=['requests', 'tqdm'],
       include_package_data=True,
       zip_safe=False,
       entry_points={
           'console_scripts': [
-              'webdriverdownloader = webdriverdownloader.cli:main',
+              'webdrivermanager = webdrivermanager.cli:main',
           ],
       })

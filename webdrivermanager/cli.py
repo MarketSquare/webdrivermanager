@@ -2,7 +2,7 @@ import argparse
 import os
 import os.path
 
-from webdriverdownloader import ChromeDriverDownloader, GeckoDriverDownloader, OperaChromiumDriverDownloader
+from webdrivermanager import ChromeDriverDownloader, GeckoDriverDownloader, OperaChromiumDriverDownloader
 
 
 downloaders = {
