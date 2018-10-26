@@ -1,16 +1,21 @@
 from setuptools import setup
 from codecs import open
-from os import path
+from os.path import abspath, join, dirname
 
-
-here = path.abspath(path.dirname(__file__))
+CWD = abspath(dirname(__file__))
+PACKAGE_NAME='webdrivermanager'
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(join(CWD, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name='webdrivermanager',
-      version='0.1.dev2',
+# Get version
+CWD = abspath(dirname(__file__))
+VERSION_PATH = join(CWD, PACKAGE_NAME, 'version.py')
+exec(compile(open(VERSION_PATH).read(), VERSION_PATH, 'exec'))
+
+setup(name=PACKAGE_NAME,
+      version=VERSION,
       description='Module for facilitating download and deploy of WebDriver binaries.',
       long_description=long_description,
       long_description_content_type='text/x-rst',
