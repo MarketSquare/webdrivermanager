@@ -31,7 +31,7 @@ setup(name='webdrivermanager',
             "Topic :: Utilities",
       ],
       url='https://github.com/rasjani/webdrivermanager',
-      author='Jani Mikkonen'
+      author='Jani Mikkonen',
       author_email='jani.mikkonen@gmail.com',
       license='MIT',
       packages=['webdrivermanager'],
