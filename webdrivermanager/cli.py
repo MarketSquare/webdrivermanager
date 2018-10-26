@@ -28,6 +28,8 @@ def parse_command_line():
         ),
         nargs="+",
     )
+    parser.add_argument('--downloadpath','-d', action='store', dest='downloadpath', metavar='F', default=None, help='Where to download the webdriver binaries')
+    parser.add_argument('--linkpath','-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to. Defaults to ')
     return parser.parse_args()
 
 
@@ -40,7 +42,7 @@ def main():
             version = "latest"
         if browser.lower() in downloaders.keys():
             print("Downloading WebDriver for browser: '{0}'".format(browser))
-            downloader = downloaders[browser]()
+            downloader = downloaders[browser](args.downloadpath, args.linkpath)
             extracted_binary, link = downloader.download_and_install(version)
             print("Driver binary downloaded to: {0}".format(extracted_binary))
             if os.path.islink(link):
