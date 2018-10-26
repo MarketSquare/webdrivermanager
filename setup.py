@@ -14,27 +14,29 @@ CWD = abspath(dirname(__file__))
 VERSION_PATH = join(CWD, PACKAGE_NAME, 'version.py')
 exec(compile(open(VERSION_PATH).read(), VERSION_PATH, 'exec'))
 
+CLASSIFIERS='''
+Development Status :: 3 - Alpha
+Environment :: Console
+Intended Audience :: Developers
+Intended Audience :: End Users/Desktop
+License :: OSI Approved :: MIT License
+Programming Language :: Python
+Programming Language :: Python :: 2
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3
+Programming Language :: Python :: 3.6
+Topic :: Software Development :: Libraries
+Topic :: Software Development :: Quality Assurance
+Topic :: Software Development :: Testing
+Topic :: Utilities
+'''.strip().splitlines()
+
 setup(name=PACKAGE_NAME,
       version=VERSION,
       description='Module for facilitating download and deploy of WebDriver binaries.',
       long_description=long_description,
       long_description_content_type='text/x-rst',
-      classifiers=[
-            "Development Status :: 3 - Alpha",
-            "Environment :: Console",
-            "Intended Audience :: Developers",
-            "Intended Audience :: End Users/Desktop",
-            "License :: OSI Approved :: MIT License",
-            "Programming Language :: Python",
-            "Programming Language :: Python :: 2",
-            "Programming Language :: Python :: 2.7",
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
-            "Topic :: Software Development :: Libraries",
-            "Topic :: Software Development :: Quality Assurance",
-            "Topic :: Software Development :: Testing",
-            "Topic :: Utilities",
-      ],
+      classifiers=CLASSIFIERS,
       url='https://github.com/rasjani/webdrivermanager',
       author='Jani Mikkonen',
       author_email='jani.mikkonen@gmail.com',

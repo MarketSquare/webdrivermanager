@@ -1,5 +1,4 @@
 import abc
-import glob
 import logging
 import os
 import os.path
@@ -45,7 +44,6 @@ class WebDriverDownloaderBase:
                 base_path = os.environ['VIRTUAL_ENV']
             else:
                 base_path = os.path.expanduser("~")
-
 
         if download_root is None:
             self.download_root = os.path.join(base_path, "webdriver")
@@ -243,8 +241,7 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
         logger.debug("Attempting to access URL: {0}".format(gecko_driver_version_release_url))
         info = requests.get(gecko_driver_version_release_url)
         if info.status_code != 200:
-            error_message = "Error, unable to get info for gecko driver {0} release. Status code: {1}".format(
-                    version, info.status_code)
+            error_message = "Error, unable to get info for gecko driver {0} release. Status code: {1}".format(version, info.status_code)
             logger.error(error_message)
             raise RuntimeError(error_message)
 
@@ -382,8 +379,7 @@ class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
         logger.debug("Attempting to access URL: {0}".format(opera_chromium_driver_version_release_url))
         info = requests.get(opera_chromium_driver_version_release_url)
         if info.status_code != 200:
-            error_message = "Error, unable to get info for opera chromium driver {0} release. Status code: {1}".format(
-                    version, info.status_code)
+            error_message = "Error, unable to get info for opera chromium driver {0} release. Status code: {1}".format(version, info.status_code)
             logger.error(error_message)
             raise RuntimeError(error_message)
 

@@ -55,5 +55,6 @@ def main():
     if link_path not in os.environ['PATH'].split(os.pathsep):
         print("WARNING: Path '{0}' is not in the PATH environment variable.".format(link_path))
 
+
 if __name__ == "__main__":
     main()
