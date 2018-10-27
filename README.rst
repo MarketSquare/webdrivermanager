@@ -1,7 +1,7 @@
 ``webdrivermanager``
 =======================
 
-Python module to facilitate downloading and deploying `WebDriver <https://www.w3.org/TR/webdriver/>`_ binaries.  The classes in this module can be used to automatically search for and download the latest version (or a specific version) of a WebDriver binary (will download to ``$HOME/webdriver`` or ``/usr/local/webdriver`` if run with ``sudo``), extract the binary from the downloaded archive and create a symlink in either ``/usr/local/bin`` (if run with ``sudo``) or ``$HOME/bin``.
+Python module to facilitate downloading and deploying `WebDriver <https://www.w3.org/TR/webdriver/>`_ binaries.  The classes in this module can be used to automatically search for and download the latest version (or a specific version) of a WebDriver binary (by default, will download to ``$HOME/webdriver`` or ``/usr/local/webdriver`` if run with ``sudo``. If virtualenv is activated when running webdrivermanager, download is stored within it), extract the binary from the downloaded archive and create a symlink in either ``/usr/local/bin`` (if run with ``sudo``) or ``$HOME/bin``.
 
 
 This project is a fork of https://github.com/leonidessaguisagjr/webdriverdownloader
@@ -84,6 +84,28 @@ There is a command-line tool that is also available.  After installing the packa
    WARNING: Path 'C:\Users\lsaguisag\bin' is not in the PATH environment variable.
 
 In the above example, a version was specified for Chrome and Opera while no version was specified for Firefox so the latest version of ``geckodriver`` was implicitly downloaded.
+
+Command line options
+--------------------
+
+    usage: webdrivermanager [-h] [--downloadpath F] [--linkpath F] browser [browser ...]
+
+    Tool for downloading and installing WebDriver binaries.
+
+    positional arguments:
+      browser               Browser to download the corresponding WebDriver
+                            binary. Valid values are: "chrome", "firefox",
+                            "gecko", "mozilla", "opera". Optionally specify a
+                            version number of the WebDriver binary as follows:
+                            "browser:version" e.g. "chrome:2.39". If no version
+                            number is specified, the latest available version of
+                            the WebDriver binary will be downloaded.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --downloadpath F, -d F
+                            Where to download the webdriver binaries
+      --linkpath F, -l F    Where to link the webdriver binary to. Defaults to
 
 
 TODOs
