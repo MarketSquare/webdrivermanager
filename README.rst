@@ -114,6 +114,16 @@ TODOs
 - Test on Linux
 
 
+RELEASES
+--------
+
+* 0.2
+    * Initial release, support for installing package directly to python virtualenv directory
+    * Added support to set install location via --downloadpath and --linkpath options
+* 0.3
+    * Prevent unnecessary calls to webdriver provides when calculating download urls and paths to store them.
+    * various code cleanups
+
 License
 -------
 
