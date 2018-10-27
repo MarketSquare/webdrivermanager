@@ -30,8 +30,8 @@ def parse_command_line():
         ),
         nargs="+",
     )
-    parser.add_argument('--downloadpath','-d', action='store', dest='downloadpath', metavar='F', default=None, help='Where to download the webdriver binaries')
-    parser.add_argument('--linkpath','-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to. Defaults to ')
+    parser.add_argument('--downloadpath', '-d', action='store', dest='downloadpath', metavar='F', default=None, help='Where to download the webdriver binaries')
+    parser.add_argument('--linkpath', '-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to. Defaults to ')
     return parser.parse_args()
 
 

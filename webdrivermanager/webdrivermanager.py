@@ -39,7 +39,11 @@ class WebDriverDownloaderBase:
                           Linux, a symlink will be created.
         """
 
-        if platform.system() in ['Darwin', 'Linux'] and os.geteuid() == 0:
+        self.platform = platform.system()
+        self.bitness = "64" if sys.maxsize > 2 ** 32 else "32"
+        self.os_name = self.get_os_name()
+
+        if self.platform in ['Darwin', 'Linux'] and os.geteuid() == 0:
             base_path = "/usr/local"
         else:
             if 'VIRTUAL_ENV' in os.environ:
@@ -54,7 +58,7 @@ class WebDriverDownloaderBase:
 
         if link_path is None:
             bin_location = "bin"
-            if 'VIRTUAL_ENV' in os.environ and platform.system() == "Windows":
+            if 'VIRTUAL_ENV' in os.environ and self.platform == "Windows":
                 bin_location = "Scripts"
             self.link_path = os.path.join(base_path, bin_location)
         else:
@@ -67,14 +71,10 @@ class WebDriverDownloaderBase:
             os.makedirs(self.link_path)
             logger.info("Created symlink directory: {0}".format(self.link_path))
 
-    @abc.abstractmethod
-    def get_driver_filename(self):
-        """
-        Method for getting the filename of the web driver binary.
+    def get_os_name(self):
+        namelist = {"Darwin": "macos", "Windows": "win", "Linux": "linux"}
 
-        :returns: The filename of the web driver binary.
-        """
-        raise NotImplementedError
+        return namelist[self.platform]
 
     @abc.abstractmethod
     def get_download_path(self, version="latest"):
@@ -100,6 +100,9 @@ class WebDriverDownloaderBase:
         :returns: The download URL for the web driver binary.
         """
         raise NotImplementedError
+
+    def get_driver_filename(self):
+        return self.DRIVER_FILENAMES[self.os_name]
 
     def download(self, version="latest", show_progress_bar=True):
         """
@@ -174,12 +177,18 @@ class WebDriverDownloaderBase:
             with zipfile.ZipFile(os.path.join(self.get_download_path(version), filename), mode="r") as driver_zipfile:
                 driver_zipfile.extractall(extract_dir)
         driver_filename = self.get_driver_filename()
+
         for root, dirs, files in os.walk(extract_dir):
             for curr_file in files:
                 if curr_file == driver_filename:
                     actual_driver_filename = os.path.join(root, curr_file)
                     break
-        if platform.system() in ['Darwin', 'Linux']:
+
+        if not actual_driver_filename:
+            logger.warn("Cannot locate binary {0} from the archive".format(driver_filename))
+            return None
+
+        if self.platform in ['Darwin', 'Linux']:
             symlink_src = actual_driver_filename
             symlink_target = os.path.join(self.link_path, driver_filename)
             if os.path.islink(symlink_target):
@@ -194,7 +203,7 @@ class WebDriverDownloaderBase:
             st = os.stat(symlink_src)
             os.chmod(symlink_src, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
             return tuple([symlink_src, symlink_target])
-        elif platform.system() == "Windows":
+        elif self.platform == "Windows":
             src_file = actual_driver_filename
             dest_file = os.path.join(self.link_path, driver_filename)
             if os.path.isfile(dest_file):
@@ -208,12 +217,11 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
     """
 
     gecko_driver_releases_url = "https://api.github.com/repos/mozilla/geckodriver/releases/"
-
-    def get_driver_filename(self):
-        if platform.system() == "Windows":
-            return "geckodriver.exe"
-        else:
-            return "geckodriver"
+    DRIVER_FILENAMES = {
+        "win": "geckodriver.exe",
+        "macos": "geckodriver",
+        "linux": "geckodriver"
+    }
 
     def get_download_path(self, version="latest"):
         if version == "latest":
@@ -247,26 +255,18 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
             logger.error(error_message)
             raise RuntimeError(error_message)
 
-        os_name = platform.system()
-        if os_name == "Darwin":
-            os_name = "macos"
-        elif os_name == "Windows":
-            os_name = "win"
-        elif os_name == "Linux":
-            os_name = "linux"
-        bitness = "64" if sys.maxsize > 2 ** 32 else "32"
-        logger.debug("Detected OS: {0}bit {1}".format(bitness, os_name))
+        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
 
         filenames = [asset['name'] for asset in info.json()['assets']]
-        filename = [name for name in filenames if os_name in name]
+        filename = [name for name in filenames if self.os_name in name]
         if len(filename) == 0:
-            error_message = "Error, unable to find a download for os: {0}".format(os_name)
+            error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
             logger.error(error_message)
             raise RuntimeError(error_message)
         if len(filename) > 1:
-            filename = [name for name in filenames if os_name + bitness in name]
+            filename = [name for name in filenames if self.os_name + self.bitness in name]
             if len(filename) != 1:
-                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(bitness, os_name)
+                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name)
                 logger.error(error_message)
                 raise RuntimeError(error_message)
         filename = filename[0]
@@ -291,11 +291,11 @@ class ChromeDriverDownloader(WebDriverDownloaderBase):
         latest_release = requests.get(resp.json()['mediaLink'])
         return latest_release.text
 
-    def get_driver_filename(self):
-        if platform.system() == "Windows":
-            return "chromedriver.exe"
-        else:
-            return "chromedriver"
+    DRIVER_FILENAMES = {
+        "win": "chromedriver.exe",
+        "macos": "chromedriver",
+        "linux": "chromedriver"
+    }
 
     def get_download_path(self, version="latest"):
         if version == "latest":
@@ -316,27 +316,19 @@ class ChromeDriverDownloader(WebDriverDownloaderBase):
         if version == "latest":
             version = self._get_latest_version_number()
 
-        os_name = platform.system()
-        if os_name == "Darwin":
-            os_name = "mac"
-        elif os_name == "Windows":
-            os_name = "win"
-        elif os_name == "Linux":
-            os_name = "linux"
-        bitness = "64" if sys.maxsize > 2 ** 32 else "32"
-        logger.debug("Detected OS: {0}bit {1}".format(bitness, os_name))
+        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
 
         chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o')
         matching_versions = [item for item in chrome_driver_objects.json()['items'] if item['name'].startswith(version)]
-        os_matching_versions = [item for item in matching_versions if os_name in item['name']]
+        os_matching_versions = [item for item in matching_versions if self.os_name in item['name']]
         if not os_matching_versions:
-            error_message = "Error, unable to find appropriate download for {0}.".format(os_name + bitness)
+            error_message = "Error, unable to find appropriate download for {0}.".format(self.os_name + self.bitness)
             logger.error(error_message)
             raise RuntimeError(error_message)
         elif len(os_matching_versions) == 1:
             result = os_matching_versions[0]['mediaLink']
         elif len(os_matching_versions) == 2:
-            result = [item for item in matching_versions if os_name + bitness in item['name']][0]['mediaLink']
+            result = [item for item in matching_versions if self.os_name + self.bitness in item['name']][0]['mediaLink']
 
         return result
 
@@ -346,12 +338,11 @@ class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
     """
 
     opera_chromium_driver_releases_url = "https://api.github.com/repos/operasoftware/operachromiumdriver/releases/"
-
-    def get_driver_filename(self):
-        if platform.system() == "Windows":
-            return "operadriver.exe"
-        else:
-            return "operadriver"
+    DRIVER_FILENAMES = {
+        "win": "operadriver.exe",
+        "macos": "operadriver",
+        "linux": "operadriver"
+    }
 
     def get_download_path(self, version="latest"):
         if version == "latest":
@@ -385,26 +376,18 @@ class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
             logger.error(error_message)
             raise RuntimeError(error_message)
 
-        os_name = platform.system()
-        if os_name == "Darwin":
-            os_name = "mac"
-        elif os_name == "Windows":
-            os_name = "win"
-        elif os_name == "Linux":
-            os_name = "linux"
-        bitness = "64" if sys.maxsize > 2 ** 32 else "32"
-        logger.debug("Detected OS: {0}bit {1}".format(bitness, os_name))
+        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
 
         filenames = [asset['name'] for asset in info.json()['assets']]
-        filename = [name for name in filenames if os_name in name]
+        filename = [name for name in filenames if self.os_name in name]
         if len(filename) == 0:
-            error_message = "Error, unable to find a download for os: {0}".format(os_name)
+            error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
             logger.error(error_message)
             raise RuntimeError(error_message)
         if len(filename) > 1:
-            filename = [name for name in filenames if os_name + bitness in name]
+            filename = [name for name in filenames if self.os_name + self.bitness in name]
             if len(filename) != 1:
-                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(bitness, os_name)
+                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name)
                 logger.error(error_message)
                 raise RuntimeError(error_message)
         filename = filename[0]
