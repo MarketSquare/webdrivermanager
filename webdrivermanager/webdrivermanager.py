@@ -118,9 +118,10 @@ class WebDriverDownloaderBase:
         """
         download_url = self.get_download_url(version)
         filename = os.path.split(urlparse(download_url).path)[1]
-        filename_with_path = os.path.join(self.get_download_path(version), filename)
-        if not os.path.isdir(self.get_download_path(version)):
-            os.makedirs(self.get_download_path(version))
+        dl_path = self.get_download_path(version)
+        filename_with_path = os.path.join(dl_path, filename)
+        if not os.path.isdir(dl_path):
+            os.makedirs(dl_path)
         if os.path.isfile(filename_with_path):
             logger.info("Skipping download. File {0} already on filesystem.".format(filename_with_path))
             return filename_with_path
@@ -158,10 +159,11 @@ class WebDriverDownloaderBase:
         """
         filename_with_path = self.download(version, show_progress_bar=True)
         filename = os.path.split(filename_with_path)[1]
+        dl_path = self.get_download_path(version)
         if filename.lower().endswith(".tar.gz"):
-            extract_dir = os.path.join(self.get_download_path(version), filename[:-7])
+            extract_dir = os.path.join(dl_path, filename[:-7])
         elif filename.lower().endswith(".zip"):
-            extract_dir = os.path.join(self.get_download_path(version), filename[:-4])
+            extract_dir = os.path.join(dl_path, filename[:-4])
         else:
             error_message = "Unknown archive format: {0}".format(filename)
             logger.error(error_message)
@@ -170,11 +172,11 @@ class WebDriverDownloaderBase:
             os.makedirs(extract_dir)
             logger.debug("Created directory: {0}".format(extract_dir))
         if filename.lower().endswith(".tar.gz"):
-            with tarfile.open(os.path.join(self.get_download_path(version), filename), mode="r:*") as tar:
+            with tarfile.open(os.path.join(dl_path, filename), mode="r:*") as tar:
                 tar.extractall(extract_dir)
                 logger.debug("Extracted files: {0}".format(", ".join(tar.getnames())))
         elif filename.lower().endswith(".zip"):
-            with zipfile.ZipFile(os.path.join(self.get_download_path(version), filename), mode="r") as driver_zipfile:
+            with zipfile.ZipFile(os.path.join(dl_path, filename), mode="r") as driver_zipfile:
                 driver_zipfile.extractall(extract_dir)
         driver_filename = self.get_driver_filename()
 
