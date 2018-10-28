@@ -73,7 +73,7 @@ class WebDriverDownloaderBase:
             logger.info("Created symlink directory: {0}".format(self.link_path))
 
     def get_os_name(self):
-        namelist = {"Darwin": "macos", "Windows": "win", "Linux": "linux"}
+        namelist = {"Darwin": "mac", "Windows": "win", "Linux": "linux"}
 
         return namelist[self.platform]
 
@@ -270,7 +270,7 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
     fallback_url = "https://github.com/mozilla/geckodriver/releases/"
     DRIVER_FILENAMES = {
         "win": "geckodriver.exe",
-        "macos": "geckodriver",
+        "mac": "geckodriver",
         "linux": "geckodriver"
     }
 
@@ -337,7 +337,7 @@ class ChromeDriverDownloader(WebDriverDownloaderBase):
 
     DRIVER_FILENAMES = {
         "win": "chromedriver.exe",
-        "macos": "chromedriver",
+        "mac": "chromedriver",
         "linux": "chromedriver"
     }
 
@@ -385,7 +385,7 @@ class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
     fallback_url = "https://github.com/operasoftware/operachromiumdriver/releases"
     DRIVER_FILENAMES = {
         "win": "operadriver.exe",
-        "macos": "operadriver",
+        "mac": "operadriver",
         "linux": "operadriver"
     }
 
