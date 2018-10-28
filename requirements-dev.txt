@@ -1,4 +1,7 @@
 twine
 flake8
 python-language-server[all]
-backports.tempfile; python_version < '3.0'
+backports.tempfile ; python_version < '3.0'
+coverage
+doit==0.29; python_version < '3.0'
+doit>0.29; python_version > '3.0'
