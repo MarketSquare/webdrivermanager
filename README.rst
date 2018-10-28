@@ -124,6 +124,10 @@ RELEASES
 * 0.3
     * Prevent unnecessary calls to webdriver provides when calculating download urls and paths to store them.
     * various code cleanups
+* 0.4
+    * Workaround to download firefox & opera webdriver when hitting github api rate limits.
+    * Fixed a bug introduced in 0.3: on mac one couldnt download chrome & opera webdriver
+    * setup.py fetches requirements from requirements.txt
 
 License
 -------
