@@ -16,6 +16,9 @@ CWD = abspath(dirname(__file__))
 VERSION_PATH = join(CWD, PACKAGE_NAME, 'version.py')
 exec(compile(open(VERSION_PATH).read(), VERSION_PATH, 'exec'))
 
+with open(join(CWD, 'requirements.txt'), encoding="utf-8") as f:
+    REQUIREMENTS = f.read().splitlines()
+
 CLASSIFIERS='''
 Development Status :: 3 - Alpha
 Environment :: Console
@@ -44,7 +47,7 @@ setup(name=PACKAGE_NAME,
       author_email='jani.mikkonen@gmail.com',
       license='MIT',
       packages=['webdrivermanager'],
-      install_requires=['requests', 'tqdm', 'lxml'],
+      install_requires=REQUIREMENTS,
       include_package_data=True,
       zip_safe=False,
       entry_points={
