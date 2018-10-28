@@ -10,6 +10,7 @@ import shutil
 import stat
 import sys
 import tarfile
+
 try:
     from urlparse import urlparse  # Python 2.x import
 except ImportError:
@@ -104,6 +105,22 @@ class WebDriverManagerBase:
 
     def get_driver_filename(self):
         return self.DRIVER_FILENAMES[self.os_name]
+
+    def _get_latest_version_with_github_page_fallback(self, url, fallback_url, required_version):
+        version = None
+        info = requests.get( url + required_version)
+        if info.ok:
+            version = info.json()['tag_name']
+        elif info.status_code == 403:
+            r = requests.get(fallback_url)
+            tree = html.fromstring(r.text)
+            latest_release = tree.xpath(".//div[@class='release-header']")[0]
+            version = latest_release.xpath(".//div/a")[0].text
+        else:
+            error_message = "Error attempting to get version info, got status code: {0}".format(info.status_code)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+        return version
 
     def _parse_github_api_response(self, version, response):
         filenames = [asset['name'] for asset in response.json()['assets']]
@@ -286,18 +303,7 @@ class GeckoDriverManager(WebDriverManagerBase):
 
     def get_download_path(self, version="latest"):
         if version == "latest":
-            info = requests.get(self.gecko_driver_releases_url + version)
-            if info.ok:
-                ver = info.json()['tag_name']
-            elif info.status_code == 403:
-                r = requests.get(self.fallback_url)
-                tree = html.fromstring(r.text)
-                latest_release = tree.xpath(".//div[@class='release-header']")[0]
-                ver = latest_release.xpath(".//div/a")[0].text
-            else:
-                error_message = "Error attempting to get version info, got status code: {0}".format(info.status_code)
-                logger.error(error_message)
-                raise RuntimeError(error_message)
+            ver = self._get_latest_version_with_github_page_fallback(self.gecko_driver_releases_url, self.fallback_url, version)
         else:
             ver = version
         return os.path.join(self.download_root, "gecko", ver)
@@ -401,18 +407,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
 
     def get_download_path(self, version="latest"):
         if version == "latest":
-            info = requests.get(self.opera_chromium_driver_releases_url + version)
-            if info.ok:
-                ver = info.json()['tag_name']
-            elif info.status_code == 403:
-                r = requests.get(self.fallback_url)
-                tree = html.fromstring(r.text)
-                latest_release = tree.xpath(".//div[@class='release-header']")[0]
-                ver = latest_release.xpath(".//div/a")[0].text
-            else:
-                error_message = "Error attempting to get version info, got status code: {0}".format(info.status_code)
-                logger.error(error_message)
-                raise RuntimeError(error_message)
+            ver = self._get_latest_version_with_github_page_fallback(self.opera_chromium_driver_releases_url, self.fallback_url, version)
         else:
             ver = version
         return os.path.join(self.download_root, "operachromium", ver)
