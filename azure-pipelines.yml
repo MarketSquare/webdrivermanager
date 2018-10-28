@@ -11,9 +11,12 @@ jobs:
   parameters:
     name: 'Linux'
     vmImage: 'ubuntu-16.04'
-    
+
 - job: dist
-  dependsOn: OSX, Widows, linux
+  dependsOn:
+  - OSX
+  - Windows
+  - linux
   condition: succeeded()
   timeoutInMinutes: 60
   cancelTimeoutInMinutes: 25
