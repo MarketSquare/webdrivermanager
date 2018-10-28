@@ -32,8 +32,5 @@ jobs:
       python -m pip install -r requirements-dev.txt
     displayName: 'Install requirements'
 
-  - script: $(runner_binary) atest/run.py python$(python_version) --xunit atest_junit.xml --nostatusrc --exclude no-ci atest/robot/cli
-    displayName: 'Running Acceptance Tests'
-
   - script: python test/test_acceptance.py
     displayName: 'Running Acceptance Tests'
