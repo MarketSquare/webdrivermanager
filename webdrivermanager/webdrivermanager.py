@@ -209,7 +209,7 @@ class WebDriverManagerBase:
         :returns: Tuple containing the path + filename to [0] the extracted binary, and [1] the symlink to the
                   extracted binary.
         """
-        filename_with_path = self.download(version, show_progress_bar=True)
+        filename_with_path = self.download(version, show_progress_bar=show_progress_bar)
         filename = os.path.split(filename_with_path)[1]
         dl_path = self.get_download_path(version)
         if filename.lower().endswith(".tar.gz"):
