@@ -23,7 +23,7 @@ from lxml import html
 logger = logging.getLogger(__name__)
 
 
-class WebDriverDownloaderBase:
+class WebDriverManagerBase:
     """Abstract Base Class for the different web driver downloaders
     """
 
@@ -262,7 +262,7 @@ class WebDriverDownloaderBase:
             return tuple([src_file, dest_file])
 
 
-class GeckoDriverDownloader(WebDriverDownloaderBase):
+class GeckoDriverManager(WebDriverManagerBase):
     """Class for downloading the Gecko (Mozilla Firefox) WebDriver.
     """
 
@@ -320,7 +320,7 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
         return result
 
 
-class ChromeDriverDownloader(WebDriverDownloaderBase):
+class ChromeDriverManager(WebDriverManagerBase):
     """Class for downloading the Google Chrome WebDriver.
     """
 
@@ -377,7 +377,7 @@ class ChromeDriverDownloader(WebDriverDownloaderBase):
         return result
 
 
-class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
+class OperaChromiumDriverManager(WebDriverManagerBase):
     """Class for downloading the Opera Chromium WebDriver.
     """
 

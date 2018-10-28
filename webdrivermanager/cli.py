@@ -4,15 +4,15 @@ import argparse
 import os
 import os.path
 
-from webdrivermanager import ChromeDriverDownloader, GeckoDriverDownloader, OperaChromiumDriverDownloader
+from webdrivermanager import ChromeDriverManager, GeckoDriverManager, OperaChromiumDriverManager
 
 
 downloaders = {
-    "chrome": ChromeDriverDownloader,
-    "firefox": GeckoDriverDownloader,
-    "gecko": GeckoDriverDownloader,
-    "mozilla": GeckoDriverDownloader,
-    "opera": OperaChromiumDriverDownloader,
+    "chrome": ChromeDriverManager,
+    "firefox": GeckoDriverManager,
+    "gecko": GeckoDriverManager,
+    "mozilla": GeckoDriverManager,
+    "opera": OperaChromiumDriverManager,
 }
 
 

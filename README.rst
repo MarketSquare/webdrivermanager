@@ -30,9 +30,9 @@ Classes
 
 The following classes are available:
 
-- ``ChromeDriverDownloader`` for downloading and installing `chromedriver <https://sites.google.com/a/chromium.org/chromedriver/downloads>`_ (for Google Chrome).
-- ``GeckoDriverDownloader`` for downloading and installing `geckodriver <https://github.com/mozilla/geckodriver>`_ (for Mozilla Firefox).
-- ``OperaChromiumDriverDownloader`` for downloading and installing `operadriver <https://github.com/operasoftware/operachromiumdriver>`_ (for Chromium based Opera browsers).
+- ``ChromeDriverManager`` for downloading and installing `chromedriver <https://sites.google.com/a/chromium.org/chromedriver/downloads>`_ (for Google Chrome).
+- ``GeckoDriverManager`` for downloading and installing `geckodriver <https://github.com/mozilla/geckodriver>`_ (for Mozilla Firefox).
+- ``OperaChromiumDriverManager`` for downloading and installing `operadriver <https://github.com/operasoftware/operachromiumdriver>`_ (for Chromium based Opera browsers).
 
 
 Status
@@ -46,8 +46,8 @@ Example module usage
 
 Example::
 
-   >>> from webdrivermanager import GeckoDriverDownloader
-   >>> gdd = GeckoDriverDownloader()
+   >>> from webdrivermanager import GeckoDriverManager
+   >>> gdd = GeckoDriverManager()
    >>> gdd.download_and_install()
    1524kb [00:00, 1631.24kb/s]
    ('/Users/lsaguisag/webdriver/geckodriver-v0.20.1-macos/geckodriver', '/Users/lsaguisag/bin/geckodriver')
