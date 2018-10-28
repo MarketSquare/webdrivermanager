@@ -17,6 +17,7 @@ except ImportError:
 import zipfile
 
 import tqdm
+from lxml import html
 
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,53 @@ class WebDriverDownloaderBase:
 
     def get_driver_filename(self):
         return self.DRIVER_FILENAMES[self.os_name]
+
+    def _parse_github_api_response(self, version, response):
+        filenames = [asset['name'] for asset in response.json()['assets']]
+        filename = [name for name in filenames if self.os_name in name]
+        if len(filename) == 0:
+            error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+        if len(filename) > 1:
+            filename = [name for name in filenames if self.os_name + self.bitness in name]
+            if len(filename) != 1:
+                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(
+                    self.bitness, self.os_name)
+                logger.error(error_message)
+                raise RuntimeError(error_message)
+        filename = filename[0]
+
+        result = response.json()["assets"][filenames.index(filename)]["browser_download_url"]
+        logger.info("Download URL: {0}".format(result))
+        return result
+
+    def _parse_github_page(self, version):
+        r = requests.get(self.fallback_url)
+        tree = html.fromstring(r.text)
+        next_page = tree.xpath(".//div[@class='pagination']/*[normalize-space(.)='Next']")[0]
+        while next_page.tag != "span":
+            releases = tree.xpath(".//div[@class='release-header']")
+            for release in releases:
+                release_version = release.xpath(".//div/a")[0].text
+                if release_version in version or version == "latest":
+                    links = [a.attrib["href"] for a in release.xpath("./following-sibling::details//a")]
+                    if not links:
+                        error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
+                        logger.error(error_message)
+                        raise RuntimeError(error_message)
+                    if len(links) > 1:
+                        link = [link for link in links if self.os_name in link and self.bitness in link]
+                        if len(link) != 1:
+                            error_message = ("Error, unable to determine correct filename "
+                                             "for {0}bit {1}".format(self.bitness, self.os_name))
+                            logger.error(error_message)
+                            raise RuntimeError(error_message)
+                    return "https://github.com{}".format(link[0])
+            next_page_url = next_page.attrib["href"]
+            r = requests.get(next_page_url)
+            tree = html.fromstring(r.text)
+            next_page = tree.xpath(".//div[@class='pagination']/*[normalize-space(.)='Next']")[0]
 
     def download(self, version="latest", show_progress_bar=True):
         """
@@ -219,6 +267,7 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
     """
 
     gecko_driver_releases_url = "https://api.github.com/repos/mozilla/geckodriver/releases/"
+    fallback_url = "https://github.com/mozilla/geckodriver/releases/"
     DRIVER_FILENAMES = {
         "win": "geckodriver.exe",
         "macos": "geckodriver",
@@ -228,11 +277,17 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
     def get_download_path(self, version="latest"):
         if version == "latest":
             info = requests.get(self.gecko_driver_releases_url + version)
-            if info.status_code != 200:
+            if info.ok:
+                ver = info.json()['tag_name']
+            elif info.status_code == 403:
+                r = requests.get(self.gecko_driver_fallback_url)
+                tree = html.fromstring(r.text)
+                latest_release = tree.xpath(".//div[@class='release-header']")[0]
+                ver = latest_release.xpath(".//div/a")[0].text
+            else:
                 error_message = "Error attempting to get version info, got status code: {0}".format(info.status_code)
                 logger.error(error_message)
                 raise RuntimeError(error_message)
-            ver = info.json()['tag_name']
         else:
             ver = version
         return os.path.join(self.download_root, "gecko", ver)
@@ -251,30 +306,17 @@ class GeckoDriverDownloader(WebDriverDownloaderBase):
         else:
             gecko_driver_version_release_url = self.gecko_driver_releases_url + "tags/" + version
         logger.debug("Attempting to access URL: {0}".format(gecko_driver_version_release_url))
-        info = requests.get(gecko_driver_version_release_url)
-        if info.status_code != 200:
-            error_message = "Error, unable to get info for gecko driver {0} release. Status code: {1}".format(version, info.status_code)
+        response = requests.get(gecko_driver_version_release_url)
+        if response.ok:
+            result = self._parse_github_api_response(version, response)
+        elif response.status_code == 403:
+            result = self._parse_github_page(version)
+        else:
+            error_message = ("Error, unable to get info for gecko driver {0} release. "
+                             "Status code: {1}. Error message: {2}")
+            error_message = error_message.format(version, response.status_code, response.text)
             logger.error(error_message)
             raise RuntimeError(error_message)
-
-        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
-
-        filenames = [asset['name'] for asset in info.json()['assets']]
-        filename = [name for name in filenames if self.os_name in name]
-        if len(filename) == 0:
-            error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
-        if len(filename) > 1:
-            filename = [name for name in filenames if self.os_name + self.bitness in name]
-            if len(filename) != 1:
-                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name)
-                logger.error(error_message)
-                raise RuntimeError(error_message)
-        filename = filename[0]
-
-        result = info.json()['assets'][filenames.index(filename)]['browser_download_url']
-        logger.info("Download URL: {0}".format(result))
         return result
 
 
@@ -340,6 +382,7 @@ class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
     """
 
     opera_chromium_driver_releases_url = "https://api.github.com/repos/operasoftware/operachromiumdriver/releases/"
+    fallback_url = "https://github.com/operasoftware/operachromiumdriver/releases"
     DRIVER_FILENAMES = {
         "win": "operadriver.exe",
         "macos": "operadriver",
@@ -372,28 +415,15 @@ class OperaChromiumDriverDownloader(WebDriverDownloaderBase):
         else:
             opera_chromium_driver_version_release_url = self.opera_chromium_driver_releases_url + "tags/" + version
         logger.debug("Attempting to access URL: {0}".format(opera_chromium_driver_version_release_url))
-        info = requests.get(opera_chromium_driver_version_release_url)
-        if info.status_code != 200:
-            error_message = "Error, unable to get info for opera chromium driver {0} release. Status code: {1}".format(version, info.status_code)
+        response = requests.get(opera_chromium_driver_version_release_url)
+        if response.ok:
+            result = self._parse_github_api_response(version, response)
+        elif response.status_code == 403:
+            result = self._parse_github_page(version)
+        else:
+            error_message = ("Error, unable to get info for opera chromium driver {0} release. "
+                             "Status code: {1}. Error message: {2}")
+            error_message = error_message.format(version, response.status_code, response.text)
             logger.error(error_message)
             raise RuntimeError(error_message)
-
-        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
-
-        filenames = [asset['name'] for asset in info.json()['assets']]
-        filename = [name for name in filenames if self.os_name in name]
-        if len(filename) == 0:
-            error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
-        if len(filename) > 1:
-            filename = [name for name in filenames if self.os_name + self.bitness in name]
-            if len(filename) != 1:
-                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name)
-                logger.error(error_message)
-                raise RuntimeError(error_message)
-        filename = filename[0]
-
-        result = info.json()['assets'][filenames.index(filename)]['browser_download_url']
-        logger.info("Download URL: {0}".format(result))
         return result
