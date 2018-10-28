@@ -11,3 +11,34 @@ jobs:
   parameters:
     name: 'Linux'
     vmImage: 'ubuntu-16.04'
+    
+- job: dist
+  dependsOn: OSX, Widows, linux
+  condition: succeeded()
+  timeoutInMinutes: 60
+  cancelTimeoutInMinutes: 25
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Python'
+    inputs:
+      versionSpec: '3.7'
+      addToPath: true
+      architecture: 'x64'
+
+  - script: |
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+      python -m pip install -r requirements-dev.txt
+    displayName: 'Install requirements'
+
+  - script: doit dist
+    displayName: 'Generate sdist files'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifacts
+    inputs:
+      PathToPublish: dist
+      ArtifactType: container
+      ArtifactName: sdist
