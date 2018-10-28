@@ -125,6 +125,10 @@ class WebDriverManagerBase:
         logger.info("Download URL: {0}".format(result))
         return result
 
+    def check_fallback_link(self, link):
+        os_name = self.os_name
+        return os_name in link and self.bitness in link
+
     def _parse_github_page(self, version):
         r = requests.get(self.fallback_url)
         tree = html.fromstring(r.text)
@@ -140,7 +144,7 @@ class WebDriverManagerBase:
                         logger.error(error_message)
                         raise RuntimeError(error_message)
                     if len(links) > 1:
-                        link = [link for link in links if self.os_name in link and self.bitness in link]
+                        link = [link for link in links if self.check_fallback_link(link)]
                         if len(link) != 1:
                             error_message = ("Error, unable to determine correct filename "
                                              "for {0}bit {1}".format(self.bitness, self.os_name))
@@ -274,13 +278,19 @@ class GeckoDriverManager(WebDriverManagerBase):
         "linux": "geckodriver"
     }
 
+    def check_fallback_link(self, link):
+        os_name = self.os_name
+        if os_name == "mac":
+            os_name = "macos"
+        return os_name in link
+
     def get_download_path(self, version="latest"):
         if version == "latest":
             info = requests.get(self.gecko_driver_releases_url + version)
             if info.ok:
                 ver = info.json()['tag_name']
             elif info.status_code == 403:
-                r = requests.get(self.gecko_driver_fallback_url)
+                r = requests.get(self.fallback_url)
                 tree = html.fromstring(r.text)
                 latest_release = tree.xpath(".//div[@class='release-header']")[0]
                 ver = latest_release.xpath(".//div/a")[0].text
@@ -392,14 +402,21 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
     def get_download_path(self, version="latest"):
         if version == "latest":
             info = requests.get(self.opera_chromium_driver_releases_url + version)
-            if info.status_code != 200:
+            if info.ok:
+                ver = info.json()['tag_name']
+            elif info.status_code == 403:
+                r = requests.get(self.fallback_url)
+                tree = html.fromstring(r.text)
+                latest_release = tree.xpath(".//div[@class='release-header']")[0]
+                ver = latest_release.xpath(".//div/a")[0].text
+            else:
                 error_message = "Error attempting to get version info, got status code: {0}".format(info.status_code)
                 logger.error(error_message)
                 raise RuntimeError(error_message)
-            ver = info.json()['tag_name']
         else:
             ver = version
         return os.path.join(self.download_root, "operachromium", ver)
+
 
     def get_download_url(self, version="latest"):
         """
