@@ -16,7 +16,7 @@ jobs:
       Python37:
         os_name:  ${{ parameters.name }}
         python_version: '3.7'
-    maxParallel: 3
+    maxParallel: 2
 
   steps:
   - task: UsePythonVersion@0
@@ -34,3 +34,15 @@ jobs:
 
   - script: python test/test_acceptance.py
     displayName: 'Running Acceptance Tests'
+
+  - script: python setup.py sdist
+    displayName: 'Generate sdist files'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifacts
+    inputs:
+      PathToPublish: dist
+      ArtifactType: container
+      ArtifactName: ${{ parameters.name }}
+
+
