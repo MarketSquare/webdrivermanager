@@ -7,7 +7,11 @@ from os import mkdir
 CWD = abspath(dirname(__file__))
 sys.path.append(join(CWD,".."))
 from webdrivermanager import GeckoDriverManager, ChromeDriverManager, OperaChromiumDriverManager
-from tempfile import TemporaryDirectory
+try:
+    from tempfile import TemporaryDirectory
+except:
+    from backports.tempfile import TemporaryDirectory
+
 
 class  BaseTest(TestCase):
     DRIVER_MANAGER=None
