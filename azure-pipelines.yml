@@ -1,0 +1,13 @@
+jobs:
+- template: azure/job_template.yml
+  parameters:
+    name: 'OSX'
+    vmImage: 'macOS-10.13'
+- template: azure/job_template.yml
+  parameters:
+    name: 'Windows'
+    vmImage: 'VS2017-Win2016'
+- template: azure/job_template.yml
+  parameters:
+    name: 'Linux'
+    vmImage: 'ubuntu-16.04'

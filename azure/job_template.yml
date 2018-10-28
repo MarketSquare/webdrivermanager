@@ -1,0 +1,39 @@
+parameters:
+  name: 'webdrivermanager'
+  vmImage: ''
+
+jobs:
+- job: ${{ parameters.name }}
+  timeoutInMinutes: 60
+  cancelTimeoutInMinutes: 25
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  strategy:
+    matrix:
+      Python27:
+        os_name:  ${{ parameters.name }}
+        python_version: '2.7'
+      Python37:
+        os_name:  ${{ parameters.name }}
+        python_version: '3.7'
+    maxParallel: 3
+
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Python for test execution'
+    inputs:
+      versionSpec: $(python_version)
+      addToPath: true
+      architecture: 'x64'
+
+  - script: |
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+      python -m pip install -r requirements-dev.txt
+    displayName: 'Install requirements'
+
+  - script: $(runner_binary) atest/run.py python$(python_version) --xunit atest_junit.xml --nostatusrc --exclude no-ci atest/robot/cli
+    displayName: 'Running Acceptance Tests'
+
+  - script: python test/test_acceptance.py
+    displayName: 'Running Acceptance Tests'
