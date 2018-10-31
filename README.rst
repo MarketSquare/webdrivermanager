@@ -128,6 +128,8 @@ RELEASES
     * Workaround to download firefox & opera webdriver when hitting github api rate limits.
     * Fixed a bug introduced in 0.3: on mac one couldnt download chrome & opera webdriver
     * setup.py fetches requirements from requirements.txt
+* 0.4.1
+    * bug fix for dependency installation
 
 License
 -------
