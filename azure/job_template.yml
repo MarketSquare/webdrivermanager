@@ -37,12 +37,3 @@ jobs:
 
   - script: python setup.py sdist
     displayName: 'Generate sdist files'
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Artifacts
-    inputs:
-      PathToPublish: dist
-      ArtifactType: container
-      ArtifactName: ${{ parameters.name }}
-
-
