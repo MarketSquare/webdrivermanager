@@ -130,6 +130,8 @@ RELEASES
     * setup.py fetches requirements from requirements.txt
 * 0.4.1
     * bug fix for dependency installation
+* 0.4.2
+     bug fix for github fallback
 
 License
 -------
