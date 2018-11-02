@@ -155,6 +155,8 @@ class WebDriverManagerBase:
                         link = a.attrib["href"]
                         if self.os_name in link and self.bitness in link:
                             break
+                        elif self.os_name in link and self.os_name == "mac":
+                            break
                     else:
                         error_message = ("Error, unable to determine correct filename "
                                          "for {0}bit {1}".format(self.bitness, self.os_name))
