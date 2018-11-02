@@ -155,6 +155,8 @@ class WebDriverManagerBase:
                         link = a.attrib["href"]
                         if self.os_name in link and self.bitness in link:
                             break
+                        # "os_name" should be "macos" for geckodriver but we are
+                        # just checking "mac" for now ...
                         elif self.os_name in link and self.os_name == "mac":
                             break
                     else:
@@ -289,12 +291,6 @@ class GeckoDriverManager(WebDriverManagerBase):
         "mac": "geckodriver",
         "linux": "geckodriver"
     }
-
-    def check_fallback_link(self, link):
-        os_name = self.os_name
-        if os_name == "mac":
-            os_name = "macos"
-        return os_name in link
 
     def get_download_path(self, version="latest"):
         if version == "latest":
