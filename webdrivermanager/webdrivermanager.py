@@ -142,10 +142,6 @@ class WebDriverManagerBase:
         logger.info("Download URL: {0}".format(result))
         return result
 
-    def check_fallback_link(self, link):
-        os_name = self.os_name
-        return os_name in link and self.bitness in link
-
     def _parse_github_page(self, version):
         r = requests.get(self.fallback_url)
         tree = html.fromstring(r.text)
@@ -155,19 +151,18 @@ class WebDriverManagerBase:
             for release in releases:
                 release_version = release.xpath(".//div/a")[0].text
                 if release_version in version or version == "latest":
-                    links = [a.attrib["href"] for a in release.xpath("./following-sibling::details//a")]
-                    if not links:
-                        error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
+                    for a in release.xpath("./following-sibling::details//a"):
+                        link = a.attrib["href"]
+                        if self.os_name in link and self.bitness in link:
+                            break
+                        elif self.os_name in link and self.os_name == "mac":
+                            break
+                    else:
+                        error_message = ("Error, unable to determine correct filename "
+                                         "for {0}bit {1}".format(self.bitness, self.os_name))
                         logger.error(error_message)
                         raise RuntimeError(error_message)
-                    if len(links) > 1:
-                        link = [link for link in links if self.check_fallback_link(link)]
-                        if len(link) != 1:
-                            error_message = ("Error, unable to determine correct filename "
-                                             "for {0}bit {1}".format(self.bitness, self.os_name))
-                            logger.error(error_message)
-                            raise RuntimeError(error_message)
-                    return "https://github.com{}".format(link[0])
+                    return "https://github.com{}".format(link)
             next_page_url = next_page.attrib["href"]
             r = requests.get(next_page_url)
             tree = html.fromstring(r.text)
