@@ -30,7 +30,7 @@ class WebDriverManagerBase:
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, download_root=None, link_path=None):
+    def __init__(self, download_root=None, link_path=None, os_name=None):
         """
         Initializer for the class.  Accepts two optional parameters.
 
@@ -43,7 +43,7 @@ class WebDriverManagerBase:
 
         self.platform = platform.system()
         self.bitness = "64" if sys.maxsize > 2 ** 32 else "32"
-        self.os_name = self.get_os_name()
+        self.os_name = os_name or self.get_os_name()
 
         if self.platform in ['Darwin', 'Linux'] and os.geteuid() == 0:
             base_path = "/usr/local"
