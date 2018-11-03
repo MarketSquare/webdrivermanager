@@ -10,6 +10,7 @@ import shutil
 import stat
 import sys
 import tarfile
+import re
 
 try:
     from urlparse import urlparse  # Python 2.x import
@@ -18,7 +19,8 @@ except ImportError:
 import zipfile
 
 import tqdm
-from lxml import html
+import lxml
+import lxml.html
 
 
 logger = logging.getLogger(__name__)
@@ -113,7 +115,7 @@ class WebDriverManagerBase:
             version = info.json()['tag_name']
         elif info.status_code == 403:
             r = requests.get(fallback_url)
-            tree = html.fromstring(r.text)
+            tree = lxml.html.fromstring(r.text)
             latest_release = tree.xpath(".//div[@class='release-header']")[0]
             version = latest_release.xpath(".//div/a")[0].text
         else:
@@ -144,7 +146,7 @@ class WebDriverManagerBase:
 
     def _parse_github_page(self, version):
         r = requests.get(self.fallback_url)
-        tree = html.fromstring(r.text)
+        tree = lxml.html.fromstring(r.text)
         next_page = tree.xpath(".//div[@class='pagination']/*[normalize-space(.)='Next']")[0]
         while next_page.tag != "span":
             releases = tree.xpath(".//div[@class='release-header']")
@@ -167,7 +169,7 @@ class WebDriverManagerBase:
                     return "https://github.com{}".format(link)
             next_page_url = next_page.attrib["href"]
             r = requests.get(next_page_url)
-            tree = html.fromstring(r.text)
+            tree = lxml.html.fromstring(r.text)
             next_page = tree.xpath(".//div[@class='pagination']/*[normalize-space(.)='Next']")[0]
 
     def download(self, version="latest", show_progress_bar=True):
@@ -223,12 +225,19 @@ class WebDriverManagerBase:
         :returns: Tuple containing the path + filename to [0] the extracted binary, and [1] the symlink to the
                   extracted binary.
         """
+        driver_filename = self.get_driver_filename()
+        if driver_filename is None:
+            error_message = "Error, unable to find appropriate drivername for {0}.".format(self.os_name)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
         filename_with_path = self.download(version, show_progress_bar=show_progress_bar)
         filename = os.path.split(filename_with_path)[1]
         dl_path = self.get_download_path(version)
         if filename.lower().endswith(".tar.gz"):
             extract_dir = os.path.join(dl_path, filename[:-7])
         elif filename.lower().endswith(".zip"):
+            extract_dir = os.path.join(dl_path, filename[:-4])
+        elif filename.lower().endswith(".exe"):
             extract_dir = os.path.join(dl_path, filename[:-4])
         else:
             error_message = "Unknown archive format: {0}".format(filename)
@@ -244,7 +253,8 @@ class WebDriverManagerBase:
         elif filename.lower().endswith(".zip"):
             with zipfile.ZipFile(os.path.join(dl_path, filename), mode="r") as driver_zipfile:
                 driver_zipfile.extractall(extract_dir)
-        driver_filename = self.get_driver_filename()
+        elif filename.lower().endswith(".exe"):
+            shutil.copy2(os.path.join(dl_path, filename), os.path.join(extract_dir, filename))
 
         for root, dirs, files in os.walk(extract_dir):
             for curr_file in files:
@@ -430,3 +440,75 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
             logger.error(error_message)
             raise RuntimeError(error_message)
         return result
+
+
+
+class EdgeDriverManager(WebDriverManagerBase):
+    """Class for downloading the Edge WebDriver.
+    """
+    DRIVER_FILENAMES = {
+        "win": "MicrosoftWebDriver.exe",
+        "mac": None,
+        "linux": None
+    }
+
+    edge_driver_base_url = 'https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/'
+
+
+    def _get_download_url(self, body, version):
+        try:
+            tree = lxml.html.fromstring(body.text)
+            link = tree.xpath("//li[contains(@class,'driver-download')]/p[contains(@class,'driver-download__meta')]/a/../../p[contains(text(),'6.17134')]/../a")[0]
+            return link.get('href')
+        except lxml.etree.ParserError:
+            return None
+
+    def _get_version_number(self, body):
+        try:
+            tree = lxml.html.fromstring(body.text)
+            li_text = tree.xpath("//li[contains(@class, 'driver-download')]/p[contains(@class, 'driver-download__meta')]/a/..")[0].text
+            results = re.findall(r"Version: ([\d\.]+) |", li_text)[0]
+            if bool(results and results[0]):
+                return results[0]
+            else:
+                return None
+        except lxml.etree.ParserError:
+            return None
+
+    def _get_latest_version_number(self):
+        resp = requests.get(self.edge_driver_base_url)
+        if resp.status_code != 200:
+            error_message = "Error, unable to get version number for latest release, got code: {0}".format(resp.status_code)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+        return self._get_version_number(resp)
+
+    def get_download_path(self, version="latest"):
+        if version == "latest":
+            ver = self._get_latest_version_number()
+        else:
+            ver = version
+        return os.path.join(self.download_root, "edge", ver)
+
+    def get_download_url(self, version="latest"):
+        """
+        Method for getting the download URL for the Google Chome driver binary.
+
+        :param version: String representing the version of the web driver binary to download.  For example, "2.39".
+                        Default if no version is specified is "latest".  The version string should match the version
+                        as specified on the download page of the webdriver binary.
+        :returns: The download URL for the Google Chrome driver binary.
+        """
+        if version == "latest":
+            version = self._get_latest_version_number()
+
+        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
+
+        resp = requests.get(self.edge_driver_base_url)
+        if resp.status_code != 200:
+            error_message = "Error, unable to get version number for latest release, got code: {0}".format(resp.status_code)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+
+        return self._get_download_url(resp, version)
+
