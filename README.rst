@@ -33,6 +33,7 @@ The following classes are available:
 - ``ChromeDriverManager`` for downloading and installing `chromedriver <https://sites.google.com/a/chromium.org/chromedriver/downloads>`_ (for Google Chrome).
 - ``GeckoDriverManager`` for downloading and installing `geckodriver <https://github.com/mozilla/geckodriver>`_ (for Mozilla Firefox).
 - ``OperaChromiumDriverManager`` for downloading and installing `operadriver <https://github.com/operasoftware/operachromiumdriver>`_ (for Chromium based Opera browsers).
+- ``EdgeDriverManager`` for downloading and installing `edgedriver <https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/>`_ (for Microsoft Edge).
 
 
 Status

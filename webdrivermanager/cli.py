@@ -4,8 +4,10 @@ import argparse
 import os
 import os.path
 
-from webdrivermanager import ChromeDriverManager, GeckoDriverManager, OperaChromiumDriverManager
+from webdrivermanager import ChromeDriverManager, GeckoDriverManager, OperaChromiumDriverManager, EdgeDriverManager
 
+
+os_names = ["mac","win","linux"]
 
 downloaders = {
     "chrome": ChromeDriverManager,
@@ -13,6 +15,7 @@ downloaders = {
     "gecko": GeckoDriverManager,
     "mozilla": GeckoDriverManager,
     "opera": OperaChromiumDriverManager,
+    "edge": EdgeDriverManager,
 }
 
 
@@ -32,7 +35,7 @@ def parse_command_line():
     )
     parser.add_argument('--downloadpath', '-d', action='store', dest='downloadpath', metavar='F', default=None, help='Where to download the webdriver binaries')
     parser.add_argument('--linkpath', '-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to.')
-    parser.add_argument('--os', '-o', action='store', dest='os_name', choices=['mac','win','linux'], metavar='OSNAME', default=None, help='Overrides os detection with given os name')
+    parser.add_argument('--os', '-o', action='store', dest='os_name', choices=os_names, metavar='OSNAME', default=None, help='Overrides os detection with given os name. Values: {0}'.format(", ".join(os_names)))
     return parser.parse_args()
 
 
