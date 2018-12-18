@@ -1,1 +1,2 @@
 include requirements*.txt
+exclude dodo.py .gitignore azure-pipelines.yml azure/* test/*

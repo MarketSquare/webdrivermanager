@@ -136,6 +136,10 @@ RELEASES
     * bug fix for dependency installation
 * 0.4.2
      bug fix for github fallback
+* 0.5.0
+     Basic support for Microsoft Edge
+     Fixed a crash if unsupported browser string was passed (for example: Safari)
+
 
 License
 -------
