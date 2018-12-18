@@ -55,13 +55,13 @@ def main():
                 print("Symlink created: {0}".format(link))
             else:
                 print("Driver copied to: {0}".format(link))
+
+            link_path = os.path.split(link)[0]
+            if link_path not in os.environ['PATH'].split(os.pathsep):
+                print("WARNING: Path '{0}' is not in the PATH environment variable.".format(link_path))
         else:
             print("Unrecognized browser: '{0}'.  Ignoring...".format(browser))
         print("")
-
-    link_path = os.path.split(link)[0]
-    if link_path not in os.environ['PATH'].split(os.pathsep):
-        print("WARNING: Path '{0}' is not in the PATH environment variable.".format(link_path))
 
 
 if __name__ == "__main__":
