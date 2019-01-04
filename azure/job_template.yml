@@ -34,6 +34,14 @@ jobs:
 
   - script: python test/test_acceptance.py
     displayName: 'Running Acceptance Tests'
+    continueOnError: true
+
+  - task: PublishTestResults@2
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: acceptance_tests.xml
+      testResultsTitle: Acceptance Test for $(os_name) with Python $(python_version)
+      testRunTitle: Python-$(python_version)-$(os_name)-unit
 
   - script: python setup.py sdist
     displayName: 'Generate sdist files'
