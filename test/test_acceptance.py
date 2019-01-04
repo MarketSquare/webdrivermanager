@@ -1,6 +1,6 @@
-
 from unittest import TestCase
 from unittest import main as run_tests
+from xmlrunner import  XMLTestRunner
 import sys
 from os.path import abspath, join, dirname, isfile
 from os import mkdir
@@ -85,6 +85,7 @@ class EdgeDriverManagerTests(BaseTest):
         self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
 
 if __name__ == '__main__':
-    run_tests()
-
-
+    with open('acceptance_tests.xml', 'wb') as output:
+        run_tests(
+            testRunner=XMLTestRunner(output=output),
+            failfast=False, buffer=False, catchbreak=False)
