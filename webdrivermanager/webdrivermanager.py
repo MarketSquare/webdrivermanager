@@ -25,7 +25,6 @@ import lxml.html
 
 logger = logging.getLogger(__name__)
 
-
 class WebDriverManagerBase:
     """Abstract Base Class for the different web driver downloaders
     """
@@ -512,3 +511,12 @@ class EdgeDriverManager(WebDriverManagerBase):
 
         return self._get_download_url(resp, version)
 
+
+available_drivers = {
+    "chrome": ChromeDriverManager,
+    "firefox": GeckoDriverManager,
+    "gecko": GeckoDriverManager,
+    "mozilla": GeckoDriverManager,
+    "opera": OperaChromiumDriverManager,
+    "edge": EdgeDriverManager,
+}
