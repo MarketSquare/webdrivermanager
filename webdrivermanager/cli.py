@@ -3,21 +3,10 @@
 import argparse
 import os
 import os.path
-
-from webdrivermanager import ChromeDriverManager, GeckoDriverManager, OperaChromiumDriverManager, EdgeDriverManager
+from webdrivermanager import available_drivers as downloaders
 
 
 os_names = ["mac","win","linux"]
-
-downloaders = {
-    "chrome": ChromeDriverManager,
-    "firefox": GeckoDriverManager,
-    "gecko": GeckoDriverManager,
-    "mozilla": GeckoDriverManager,
-    "opera": OperaChromiumDriverManager,
-    "edge": EdgeDriverManager,
-}
-
 
 def parse_command_line():
     parser = argparse.ArgumentParser(

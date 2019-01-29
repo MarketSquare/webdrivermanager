@@ -135,10 +135,12 @@ RELEASES
 * 0.4.1
     * bug fix for dependency installation
 * 0.4.2
-     bug fix for github fallback
+    * bug fix for github fallback
 * 0.5.0
-     Basic support for Microsoft Edge
-     Fixed a crash if unsupported browser string was passed (for example: Safari)
+    * Basic support for Microsoft Edge
+    * Fixed a crash if unsupported browser string was passed (for example: Safari)
+* 0.6.0
+    * python module exports available_drivers dict
 
 
 License

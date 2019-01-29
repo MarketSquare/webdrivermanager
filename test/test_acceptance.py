@@ -6,7 +6,7 @@ from os.path import abspath, join, dirname, isfile
 from os import mkdir
 CWD = abspath(dirname(__file__))
 sys.path.append(join(CWD,".."))
-from webdrivermanager import GeckoDriverManager, ChromeDriverManager, OperaChromiumDriverManager, EdgeDriverManager
+from webdrivermanager import GeckoDriverManager, ChromeDriverManager, OperaChromiumDriverManager, EdgeDriverManager, WebDriverManagerBase, available_drivers
 
 try:
     from tempfile import TemporaryDirectory
@@ -26,6 +26,11 @@ class  BaseTest(TestCase):
         link_path = join(self.temp_dir.name, "bin")
         mkdir(link_path)
         return link_path
+
+class GeneralWebDriverManagerTests(BaseTest):
+    DRIVER_MANAGER=WebDriverManagerBase
+    def test_available_drivers(self):
+        self.assertTrue(isinstance(available_drivers, dict), "available_drivers doesnt seem to be exported correctly")
 
 class ChromeDriverManagerTests(BaseTest):
     DRIVER_MANAGER=ChromeDriverManager
