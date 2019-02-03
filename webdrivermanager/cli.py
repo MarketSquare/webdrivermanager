@@ -23,7 +23,7 @@ def parse_command_line():
         nargs="+",
     )
     parser.add_argument('--downloadpath', '-d', action='store', dest='downloadpath', metavar='F', default=None, help='Where to download the webdriver binaries')
-    parser.add_argument('--linkpath', '-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to.')
+    parser.add_argument('--linkpath', '-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to. Set to "AUTO" if you need some intelligence to decice where to place the final webdriver binary')
     parser.add_argument('--os', '-o', action='store', dest='os_name', choices=os_names, metavar='OSNAME', default=None, help='Overrides os detection with given os name. Values: {0}'.format(", ".join(os_names)))
     return parser.parse_args()
 
