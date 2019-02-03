@@ -35,7 +35,8 @@ def main():
             browser, version = browser.split(":")
         else:
             version = "latest"
-        if browser.lower() in downloaders.keys():
+        browser = browser.lower()
+        if browser in downloaders.keys():
             print("Downloading WebDriver for browser: '{0}'".format(browser))
             downloader = downloaders[browser](args.downloadpath, args.linkpath, args.os_name)
             extracted_binary, link = downloader.download_and_install(version)
