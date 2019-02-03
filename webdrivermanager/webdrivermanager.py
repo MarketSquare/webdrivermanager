@@ -21,9 +21,13 @@ import zipfile
 import tqdm
 import lxml
 import lxml.html
+from appdirs import AppDirs
 
 
 logger = logging.getLogger(__name__)
+
+def _inside_virtualenv():
+    return hasattr(sys, 'real_prefix') or hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
 
 class WebDriverManagerBase:
     """Abstract Base Class for the different web driver downloaders
@@ -45,25 +49,35 @@ class WebDriverManagerBase:
         self.platform = platform.system()
         self.bitness = "64" if sys.maxsize > 2 ** 32 else "32"
         self.os_name = os_name or self.get_os_name()
+        self.dirs = AppDirs("WebDriverManager", "salabs_")
 
         if self.platform in ['Darwin', 'Linux'] and os.geteuid() == 0:
-            base_path = "/usr/local"
+            base_path = self.dirs.site_data_dir
         else:
-            if 'VIRTUAL_ENV' in os.environ:
-                base_path = os.environ['VIRTUAL_ENV']
+            if _inside_virtualenv():
+                base_path = os.path.join(sys.prefix, "WebDriverManager")
             else:
-                base_path = os.path.expanduser("~")
+                base_path = self.dirs.user_data_dir
 
         if download_root is None:
-            self.download_root = os.path.join(base_path, "webdriver")
+            self.download_root = base_path
         else:
             self.download_root = download_root
 
-        if link_path is None:
+        if link_path in [None, "AUTO"]:
             bin_location = "bin"
-            if 'VIRTUAL_ENV' in os.environ and self.platform == "Windows":
-                bin_location = "Scripts"
-            self.link_path = os.path.join(base_path, bin_location)
+            if _inside_virtualenv():
+                if self.platform == "Windows":
+                    bin_location = "Scripts"
+                self.link_path = os.path.join(sys.prefix, bin_location)
+            else:
+                if self.platform in ['Darwin', 'Linux'] and os.geteuid() == 0:
+                    self.link_path = "/usr/local/bin"
+                else:
+                    dir_in_path = None
+                    if link_path is "AUTO":
+                        dir_in_path  = self._find_bin()
+                    self.link_path = dir_in_path or os.path.join(base_path, bin_location)
         else:
             self.link_path = link_path
 
@@ -73,6 +87,13 @@ class WebDriverManagerBase:
         if not os.path.isdir(self.link_path):
             os.makedirs(self.link_path)
             logger.info("Created symlink directory: {0}".format(self.link_path))
+
+    def _find_bin():
+        dirs = os.environ['PATH'].split(os.pathsep)
+        for d in dirs:
+            if os.access(d,os.W_OK):
+                return d
+        return None
 
     def get_os_name(self):
         namelist = {"Darwin": "mac", "Windows": "win", "Linux": "linux"}
