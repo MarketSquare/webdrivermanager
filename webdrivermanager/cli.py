@@ -6,7 +6,8 @@ import os.path
 from webdrivermanager import available_drivers as downloaders
 
 
-os_names = ["mac","win","linux"]
+os_names = ["mac", "win", "linux"]
+
 
 def parse_command_line():
     parser = argparse.ArgumentParser(
