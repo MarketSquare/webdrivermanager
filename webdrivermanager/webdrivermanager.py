@@ -268,13 +268,14 @@ class WebDriverManagerBase:
         if self.platform in ['Darwin', 'Linux']:
             symlink_src = actual_driver_filename
             symlink_target = os.path.join(self.link_path, driver_filename)
-            if os.path.islink(symlink_target):
+            if os.path.islink(symlink_target) or os.path.exists(symlink_target):
                 if os.path.samefile(symlink_src, symlink_target):
                     logger.info("Symlink already exists: {0} -> {1}".format(symlink_target, symlink_src))
                     return tuple([symlink_src, symlink_target])
                 else:
-                    logger.warning("Symlink {0} already exists and will be overwritten.".format(symlink_target))
+                    logger.warning("Symlink target {0} already exists and will be overwritten.".format(symlink_target))
                     os.unlink(symlink_target)
+
             os.symlink(symlink_src, symlink_target)
             logger.info("Created symlink: {0} -> {1}".format(symlink_target, symlink_src))
             st = os.stat(symlink_src)
