@@ -26,8 +26,15 @@ from appdirs import AppDirs
 
 logger = logging.getLogger(__name__)
 
+
 def _inside_virtualenv():
     return hasattr(sys, 'real_prefix') or hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
+
+
+def raise_runtime_error(msg):
+    logger.error(msg)
+    raise RuntimeError(msg)
+
 
 class WebDriverManagerBase:
     """Abstract Base Class for the different web driver downloaders
@@ -75,8 +82,8 @@ class WebDriverManagerBase:
                     self.link_path = "/usr/local/bin"
                 else:
                     dir_in_path = None
-                    if link_path is "AUTO":
-                        dir_in_path  = self._find_bin()
+                    if link_path == "AUTO":
+                        dir_in_path = self._find_bin()
                     self.link_path = dir_in_path or os.path.join(base_path, bin_location)
         else:
             self.link_path = link_path
@@ -91,7 +98,7 @@ class WebDriverManagerBase:
     def _find_bin(self):
         dirs = os.environ['PATH'].split(os.pathsep)
         for d in dirs:
-            if os.access(d,os.W_OK):
+            if os.access(d, os.W_OK):
                 return d
         return None
 
@@ -130,7 +137,7 @@ class WebDriverManagerBase:
 
     def _get_latest_version_with_github_page_fallback(self, url, fallback_url, required_version):
         version = None
-        info = requests.get( url + required_version)
+        info = requests.get("{0}{1}".format(url, required_version))
         if info.ok:
             version = info.json()['tag_name']
         elif info.status_code == 403:
@@ -139,25 +146,21 @@ class WebDriverManagerBase:
             latest_release = tree.xpath(".//div[@class='release-header']")[0]
             version = latest_release.xpath(".//div/a")[0].text
         else:
-            error_message = "Error attempting to get version info, got status code: {0}".format(info.status_code)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error attempting to get version info, got status code: {0}".format(info.status_code))
+
         return version
 
     def _parse_github_api_response(self, version, response):
         filenames = [asset['name'] for asset in response.json()['assets']]
         filename = [name for name in filenames if self.os_name in name]
         if len(filename) == 0:
-            error_message = "Error, unable to find a download for os: {0}".format(self.os_name)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error, unable to find a download for os: {0}".format(self.os_name))
+
         if len(filename) > 1:
             filename = [name for name in filenames if self.os_name + self.bitness in name]
             if len(filename) != 1:
-                error_message = "Error, unable to determine correct filename for {0}bit {1}".format(
-                    self.bitness, self.os_name)
-                logger.error(error_message)
-                raise RuntimeError(error_message)
+                raise_runtime_error("Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name))
+
         filename = filename[0]
 
         result = response.json()["assets"][filenames.index(filename)]["browser_download_url"]
@@ -173,6 +176,7 @@ class WebDriverManagerBase:
             for release in releases:
                 release_version = release.xpath(".//div/a")[0].text
                 if release_version in version or version == "latest":
+                    # TODO: Rewrite this for / else loop
                     for a in release.xpath("./following-sibling::details//a"):
                         link = a.attrib["href"]
                         if self.os_name in link and self.bitness in link:
@@ -182,10 +186,8 @@ class WebDriverManagerBase:
                         elif self.os_name in link and self.os_name == "mac":
                             break
                     else:
-                        error_message = ("Error, unable to determine correct filename "
-                                         "for {0}bit {1}".format(self.bitness, self.os_name))
-                        logger.error(error_message)
-                        raise RuntimeError(error_message)
+                        raise_runtime_error("Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name))
+
                     return "https://github.com{}".format(link)
             next_page_url = next_page.attrib["href"]
             r = requests.get(next_page_url)
@@ -228,9 +230,7 @@ class WebDriverManagerBase:
             logger.debug("Finished downloading {0} to {1}".format(download_url, filename_with_path))
             return filename_with_path
         else:
-            error_message = "Error downloading file {0}, got status code: {1}".format(filename, data.status_code)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error downloading file {0}, got status code: {1}".format(filename, data.status_code))
 
     def download_and_install(self, version="latest", show_progress_bar=True):
         """
@@ -247,9 +247,8 @@ class WebDriverManagerBase:
         """
         driver_filename = self.get_driver_filename()
         if driver_filename is None:
-            error_message = "Error, unable to find appropriate drivername for {0}.".format(self.os_name)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error, unable to find appropriate drivername for {0}.".format(self.os_name))
+
         filename_with_path = self.download(version, show_progress_bar=show_progress_bar)
         filename = os.path.split(filename_with_path)[1]
         dl_path = self.get_download_path(version)
@@ -260,9 +259,8 @@ class WebDriverManagerBase:
         elif filename.lower().endswith(".exe"):
             extract_dir = os.path.join(dl_path, filename[:-4])
         else:
-            error_message = "Unknown archive format: {0}".format(filename)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Unknown archive format: {0}".format(filename))
+
         if not os.path.isdir(extract_dir):
             os.makedirs(extract_dir)
             logger.debug("Created directory: {0}".format(extract_dir))
@@ -292,7 +290,7 @@ class WebDriverManagerBase:
             if os.path.islink(symlink_target) or os.path.exists(symlink_target):
                 if os.path.samefile(symlink_src, symlink_target):
                     logger.info("Symlink already exists: {0} -> {1}".format(symlink_target, symlink_src))
-                    return tuple([symlink_src, symlink_target])
+                    return (symlink_src, symlink_target)
                 else:
                     logger.warning("Symlink target {0} already exists and will be overwritten.".format(symlink_target))
                     os.unlink(symlink_target)
@@ -301,14 +299,14 @@ class WebDriverManagerBase:
             logger.info("Created symlink: {0} -> {1}".format(symlink_target, symlink_src))
             st = os.stat(symlink_src)
             os.chmod(symlink_src, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-            return tuple([symlink_src, symlink_target])
+            return (symlink_src, symlink_target)
         elif self.platform == "Windows":
             src_file = actual_driver_filename
             dest_file = os.path.join(self.link_path, driver_filename)
             if os.path.isfile(dest_file):
                 logger.info("File {0} already exists and will be overwritten.".format(dest_file))
             shutil.copy2(src_file, dest_file)
-            return tuple([src_file, dest_file])
+            return (src_file, dest_file)
 
 
 class GeckoDriverManager(WebDriverManagerBase):
@@ -350,11 +348,8 @@ class GeckoDriverManager(WebDriverManagerBase):
         elif response.status_code == 403:
             result = self._parse_github_page(version)
         else:
-            error_message = ("Error, unable to get info for gecko driver {0} release. "
-                             "Status code: {1}. Error message: {2}")
-            error_message = error_message.format(version, response.status_code, response.text)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error, unable to get info for gecko driver {0} release. Status code: {1}. Error message: {2}".format(version, response.status_code, response.text))
+
         return result
 
 
@@ -367,9 +362,8 @@ class ChromeDriverManager(WebDriverManagerBase):
     def _get_latest_version_number(self):
         resp = requests.get(self.chrome_driver_base_url + '/o/LATEST_RELEASE')
         if resp.status_code != 200:
-            error_message = "Error, unable to get version number for latest release, got code: {0}".format(resp.status_code)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
+
         latest_release = requests.get(resp.json()['mediaLink'])
         return latest_release.text
 
@@ -403,14 +397,12 @@ class ChromeDriverManager(WebDriverManagerBase):
         chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o')
         matching_versions = [item for item in chrome_driver_objects.json()['items'] if item['name'].startswith(version)]
         os_matching_versions = [item for item in matching_versions if self.os_name in item['name']]
-        if not os_matching_versions:
-            error_message = "Error, unable to find appropriate download for {0}.".format(self.os_name + self.bitness)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
-        elif len(os_matching_versions) == 1:
+        if len(os_matching_versions) == 1:
             result = os_matching_versions[0]['mediaLink']
         elif len(os_matching_versions) == 2:
             result = [item for item in matching_versions if self.os_name + self.bitness in item['name']][0]['mediaLink']
+        else:
+            raise_runtime_error("Error, unable to find appropriate download for {0}{1}.".format(self.os_name, self.bitness))
 
         return result
 
@@ -434,7 +426,6 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
             ver = version
         return os.path.join(self.download_root, "operachromium", ver)
 
-
     def get_download_url(self, version="latest"):
         """
         Method for getting the download URL for the Opera Chromium driver binary.
@@ -455,13 +446,9 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
         elif response.status_code == 403:
             result = self._parse_github_page(version)
         else:
-            error_message = ("Error, unable to get info for opera chromium driver {0} release. "
-                             "Status code: {1}. Error message: {2}")
-            error_message = error_message.format(version, response.status_code, response.text)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
-        return result
+            raise_runtime_error("Error, unable to get info for opera chromium driver {0} release. Status code: {1}. Error message: {2}".format(version, response.status_code, response.text))
 
+        return result
 
 
 class EdgeDriverManager(WebDriverManagerBase):
@@ -474,7 +461,6 @@ class EdgeDriverManager(WebDriverManagerBase):
     }
 
     edge_driver_base_url = 'https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/'
-
 
     def _get_download_url(self, body, version):
         try:
@@ -499,9 +485,8 @@ class EdgeDriverManager(WebDriverManagerBase):
     def _get_latest_version_number(self):
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
-            error_message = "Error, unable to get version number for latest release, got code: {0}".format(resp.status_code)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
+
         return self._get_version_number(resp)
 
     def get_download_path(self, version="latest"):
@@ -527,9 +512,7 @@ class EdgeDriverManager(WebDriverManagerBase):
 
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
-            error_message = "Error, unable to get version number for latest release, got code: {0}".format(resp.status_code)
-            logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
 
         return self._get_download_url(resp, version)
 

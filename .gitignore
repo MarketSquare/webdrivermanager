@@ -103,4 +103,5 @@ ENV/
 # doit
 .doit.db
 
+# tests
 acceptance_tests.xml

@@ -1,24 +1,38 @@
 from unittest import TestCase
+from pyfakefs.fake_filesystem_unittest import TestCase as FakeFSTestCase
 from unittest import main as run_tests
-from xmlrunner import  XMLTestRunner
+from xmlrunner import XMLTestRunner
 import sys
 from os.path import abspath, join, dirname, isfile
 from os import mkdir
 CWD = abspath(dirname(__file__))
-sys.path.append(join(CWD,".."))
-from webdrivermanager import GeckoDriverManager, ChromeDriverManager, OperaChromiumDriverManager, EdgeDriverManager, WebDriverManagerBase, available_drivers
+sys.path.append(join(CWD, ".."))
+import webdrivermanager  # noqa: E402
+import tarfile  # noqa: E402
+
 
 try:
     from tempfile import TemporaryDirectory
-except:
+except ImportError:
     from backports.tempfile import TemporaryDirectory
 
 
-class  BaseTest(TestCase):
-    DRIVER_MANAGER=None
+class AutomaticBaseTest(FakeFSTestCase):
+    DRIVER_MANAGER = None
+
+    def setUp(self):
+        self.assertIsNot(self.DRIVER_MANAGER, None, "DRIVER_MANAGER should not be none")
+        self.setUpPyfakefs(modules_to_reload=[webdrivermanager, tarfile])
+        self.fs.add_real_directory(sys.prefix)
+
+
+class ExplicitBaseTest(TestCase):
+    DRIVER_MANAGER = None
+
     def setUp(self):
         self.assertIsNot(self.DRIVER_MANAGER, None, "DRIVER_MANAGER should not be none")
         self.temp_dir = TemporaryDirectory()
+
     def tearDown(self):
         self.temp_dir.cleanup()
 
@@ -27,13 +41,32 @@ class  BaseTest(TestCase):
         mkdir(link_path)
         return link_path
 
-class GeneralWebDriverManagerTests(BaseTest):
-    DRIVER_MANAGER=WebDriverManagerBase
+
+class GeneralWebDriverManagerTests(ExplicitBaseTest):
+    DRIVER_MANAGER = webdrivermanager.WebDriverManagerBase
+
     def test_available_drivers(self):
-        self.assertTrue(isinstance(available_drivers, dict), "available_drivers doesnt seem to be exported correctly")
+        self.assertTrue(isinstance(webdrivermanager.available_drivers, dict), "available_drivers doesnt seem to be exported correctly")
 
-class ChromeDriverManagerTests(BaseTest):
-    DRIVER_MANAGER=ChromeDriverManager
+
+class ChromeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
+    DRIVER_MANAGER = webdrivermanager.ChromeDriverManager
+
+    def test_download(self):
+        self.instance = self.DRIVER_MANAGER()
+        filename = self.instance.download(show_progress_bar=False)
+        self.assertTrue(isfile(filename), "Downloading and saving seems to have failed")
+
+    def test_download_and_install(self):
+        self.instance = self.DRIVER_MANAGER()
+        driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
+        self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
+        self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
+
+
+class ChromeDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
+    DRIVER_MANAGER = webdrivermanager.ChromeDriverManager
+
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
         filename = self.instance.download(show_progress_bar=False)
@@ -41,14 +74,30 @@ class ChromeDriverManagerTests(BaseTest):
 
     def test_download_and_install(self):
         link_path = self.make_link_dir()
-        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path )
+        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
         self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
         self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
 
 
-class GeckoDriverManagerTests(BaseTest):
-    DRIVER_MANAGER=GeckoDriverManager
+class GeckoDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
+    DRIVER_MANAGER = webdrivermanager.GeckoDriverManager
+
+    def test_download(self):
+        self.instance = self.DRIVER_MANAGER()
+        filename = self.instance.download(show_progress_bar=False)
+        self.assertTrue(isfile(filename), "Downloading and saving seems to have failed")
+
+    def test_download_and_install(self):
+        self.instance = self.DRIVER_MANAGER()
+        driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
+        self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
+        self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
+
+
+class GeckoDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
+    DRIVER_MANAGER = webdrivermanager.GeckoDriverManager
+
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
         filename = self.instance.download(show_progress_bar=False)
@@ -56,13 +105,30 @@ class GeckoDriverManagerTests(BaseTest):
 
     def test_download_and_install(self):
         link_path = self.make_link_dir()
-        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path )
+        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
         self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
         self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
 
-class OperaChromiumDriverManagerTests(BaseTest):
-    DRIVER_MANAGER=OperaChromiumDriverManager
+
+class OperaChromiumDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
+    DRIVER_MANAGER = webdrivermanager.OperaChromiumDriverManager
+
+    def test_download(self):
+        self.instance = self.DRIVER_MANAGER()
+        filename = self.instance.download(show_progress_bar=False)
+        self.assertTrue(isfile(filename), "Downloading and saving seems to have failed")
+
+    def test_download_and_install(self):
+        self.instance = self.DRIVER_MANAGER()
+        driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
+        self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
+        self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
+
+
+class OperaChromiumDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
+    DRIVER_MANAGER = webdrivermanager.OperaChromiumDriverManager
+
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
         filename = self.instance.download(show_progress_bar=False)
@@ -70,13 +136,30 @@ class OperaChromiumDriverManagerTests(BaseTest):
 
     def test_download_and_install(self):
         link_path = self.make_link_dir()
-        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path )
+        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
         self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
         self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
 
-class EdgeDriverManagerTests(BaseTest):
-    DRIVER_MANAGER=EdgeDriverManager
+
+class EdgeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
+    DRIVER_MANAGER = webdrivermanager.EdgeDriverManager
+
+    def test_download(self):
+        self.instance = self.DRIVER_MANAGER(os_name="win")
+        filename = self.instance.download(show_progress_bar=False)
+        self.assertTrue(isfile(filename), "Downloading and saving seems to have failed")
+
+    def test_download_and_install(self):
+        self.instance = self.DRIVER_MANAGER(os_name="win")
+        driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
+        self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
+        self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
+
+
+class EdgeDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
+    DRIVER_MANAGER = webdrivermanager.EdgeDriverManager
+
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, os_name="win")
         filename = self.instance.download(show_progress_bar=False)
@@ -84,10 +167,11 @@ class EdgeDriverManagerTests(BaseTest):
 
     def test_download_and_install(self):
         link_path = self.make_link_dir()
-        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path, os_name="win" )
+        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path, os_name="win")
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
         self.assertTrue(isfile(driver_binary), "Downloading and saving seems to have failed")
         self.assertTrue(isfile(driver_directory), "Downloading and saving seems to have failed")
+
 
 if __name__ == '__main__':
     with open('acceptance_tests.xml', 'wb') as output:
