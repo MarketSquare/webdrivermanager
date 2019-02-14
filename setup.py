@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
 from codecs import open
-from os.path import abspath, join, dirname
+from os.path import join, abspath, dirname
+
+from setuptools import setup
 
 CWD = abspath(dirname(__file__))
 PACKAGE_NAME='webdrivermanager'

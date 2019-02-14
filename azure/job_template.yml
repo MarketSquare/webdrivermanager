@@ -40,8 +40,29 @@ jobs:
     inputs:
       testRunner: JUnit
       testResultsFiles: acceptance_tests.xml
-      testResultsTitle: Acceptance Test for $(os_name) with Python $(python_version)
-      testRunTitle: Python-$(python_version)-$(os_name)-unit
+      testResultsTitle: Acceptance Results for $(os_name) with Python $(python_version)
+      testRunTitle: Python-$(python_version)-$(os_name)-acceptance
+
+  - script: |
+      flake8 --output flake8.txt
+      flake8_junit flake8.txt flake8.xml
+      pylint webdrivermanager/ tests/ c --exit-zero --output-format=pylint2junit.JunitReporter > pylint.xml
+    displayName: 'Running Static Analysis'
+    continueOnError: true
+
+  - task: PublishTestResults@2
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: flake8.xml
+      testResultsTitle: Flake8 Results for $(os_name) with Python $(python_version)
+      testRunTitle: Python-$(python_version)-$(os_name)-flake8
+
+  - task: PublishTestResults@2
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: pylint.xml
+      testResultsTitle: PyLint Results for $(os_name) with Python $(python_version)
+      testRunTitle: Python-$(python_version)-$(os_name)-pylint
 
   - script: python setup.py sdist
     displayName: 'Generate sdist files'

@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 
-import abc
-import logging
 import os
-import os.path
-import platform
-import requests
-import shutil
-import stat
-import sys
-import tarfile
 import re
+import abc
+import sys
+import stat
+import shutil
+import logging
+import os.path
+import tarfile
+import zipfile
+import platform
+
+import lxml
+import tqdm
+import requests
+import lxml.html
+from appdirs import AppDirs
 
 try:
     from urlparse import urlparse  # Python 2.x import
 except ImportError:
     from urllib.parse import urlparse  # Python 3.x import
-import zipfile
-
-import tqdm
-import lxml
-import lxml.html
-from appdirs import AppDirs
 
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ class WebDriverManagerBase:
         return None
 
     def get_os_name(self):
-        platform_name  = platform.system()
+        platform_name = platform.system()
         namelist = {"Darwin": "mac", "Windows": "win", "Linux": "linux"}
         if 'CYGWIN' in platform_name:
             return "win"
@@ -320,7 +320,7 @@ class GeckoDriverManager(WebDriverManagerBase):
     DRIVER_FILENAMES = {
         "win": "geckodriver.exe",
         "mac": "geckodriver",
-        "linux": "geckodriver"
+        "linux": "geckodriver",
     }
 
     def get_download_path(self, version="latest"):
@@ -372,7 +372,7 @@ class ChromeDriverManager(WebDriverManagerBase):
     DRIVER_FILENAMES = {
         "win": "chromedriver.exe",
         "mac": "chromedriver",
-        "linux": "chromedriver"
+        "linux": "chromedriver",
     }
 
     def get_download_path(self, version="latest"):
@@ -418,7 +418,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
     DRIVER_FILENAMES = {
         "win": "operadriver.exe",
         "mac": "operadriver",
-        "linux": "operadriver"
+        "linux": "operadriver",
     }
 
     def get_download_path(self, version="latest"):
@@ -459,7 +459,7 @@ class EdgeDriverManager(WebDriverManagerBase):
     DRIVER_FILENAMES = {
         "win": "MicrosoftWebDriver.exe",
         "mac": None,
-        "linux": None
+        "linux": None,
     }
 
     edge_driver_base_url = 'https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/'

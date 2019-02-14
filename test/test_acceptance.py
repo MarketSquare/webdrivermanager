@@ -1,14 +1,16 @@
-from unittest import TestCase
-from pyfakefs.fake_filesystem_unittest import TestCase as FakeFSTestCase
-from unittest import main as run_tests
-from xmlrunner import XMLTestRunner
 import sys
-from os.path import abspath, join, dirname, isfile
-from os import mkdir
-CWD = abspath(dirname(__file__))
-sys.path.append(join(CWD, ".."))
-import webdrivermanager  # noqa: E402
 import tarfile  # noqa: E402
+from os import mkdir
+from os.path import join, isfile, abspath, dirname
+from unittest import TestCase
+from unittest import main as run_tests
+
+from xmlrunner import XMLTestRunner
+from pyfakefs.fake_filesystem_unittest import TestCase as FakeFSTestCase
+
+CWD = abspath(dirname(__file__))  # noqa: I003
+sys.path.append(join(CWD, ".."))
+import webdrivermanager  # noqa: E402 I001
 
 
 try:
