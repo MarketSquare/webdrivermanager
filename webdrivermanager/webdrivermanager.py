@@ -12,10 +12,9 @@ import tarfile
 import zipfile
 import platform
 
-import lxml
 import tqdm
 import requests
-import lxml.html
+from bs4 import BeautifulSoup as BS
 from appdirs import AppDirs
 
 try:
@@ -140,13 +139,14 @@ class WebDriverManagerBase:
     def _get_latest_version_with_github_page_fallback(self, url, fallback_url, required_version):
         version = None
         info = requests.get("{0}{1}".format(url, required_version))
+
         if info.ok:
             version = info.json()['tag_name']
         elif info.status_code == 403:
             r = requests.get(fallback_url)
-            tree = lxml.html.fromstring(r.text)
-            latest_release = tree.xpath(".//div[@class='release-header']")[0]
-            version = latest_release.xpath(".//div/a")[0].text
+            tree = BS(r.text, 'html.parser')
+            latest_release = tree.find('div', {'class', 'release-header'}).findAll('a')[0]
+            version = latest_release.text
         else:
             raise_runtime_error("Error attempting to get version info, got status code: {0}".format(info.status_code))
 
@@ -171,30 +171,27 @@ class WebDriverManagerBase:
 
     def _parse_github_page(self, version):
         r = requests.get(self.fallback_url)
-        tree = lxml.html.fromstring(r.text)
-        next_page = tree.xpath(".//div[@class='pagination']/*[normalize-space(.)='Next']")[0]
-        while next_page.tag != "span":
-            releases = tree.xpath(".//div[@class='release-header']")
-            for release in releases:
-                release_version = release.xpath(".//div/a")[0].text
-                if release_version in version or version == "latest":
-                    # TODO: Rewrite this for / else loop
-                    for a in release.xpath("./following-sibling::details//a"):
-                        link = a.attrib["href"]
-                        if self.os_name in link and self.bitness in link:
-                            break
-                        # "os_name" should be "macos" for geckodriver but we are
-                        # just checking "mac" for now ...
-                        elif self.os_name in link and self.os_name == "mac":
-                            break
-                    else:
-                        raise_runtime_error("Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name))
+        if version == "latest":
+            release_url = "{}latest".format(self.fallback_url)
+            matcher = r".*\/releases\/download\/.*{}".format(self.os_name)
+        else:
+            release_url = "{}tag/{}".format(self.fallback_url, version)
+            matcher = r".*\/releases\/download\/{}\/.*{}".format(version, self.os_name)
 
-                    return "https://github.com{}".format(link)
-            next_page_url = next_page.attrib["href"]
-            r = requests.get(next_page_url)
-            tree = lxml.html.fromstring(r.text)
-            next_page = tree.xpath(".//div[@class='pagination']/*[normalize-space(.)='Next']")[0]
+        r = requests.get(release_url)
+        if r.status_code != 200:
+            return None
+
+        tree = BS(r.text, 'html.parser')
+        links = tree.find_all('a', href=re.compile(matcher))
+        if len(links) == 2:
+            matcher = "{}.*{}".format(matcher, self.bitness)
+            links = tree.find_all('a', href=re.compile(matcher))
+
+        if links:
+            return "https://github.com{}".format(links[0]['href'])
+
+        return None
 
     def download(self, version="latest", show_progress_bar=True):
         """
@@ -414,7 +411,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
     """
 
     opera_chromium_driver_releases_url = "https://api.github.com/repos/operasoftware/operachromiumdriver/releases/"
-    fallback_url = "https://github.com/operasoftware/operachromiumdriver/releases"
+    fallback_url = "https://github.com/operasoftware/operachromiumdriver/releases/"
     DRIVER_FILENAMES = {
         "win": "operadriver.exe",
         "mac": "operadriver",
@@ -444,7 +441,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
         logger.debug("Attempting to access URL: {0}".format(opera_chromium_driver_version_release_url))
         response = requests.get(opera_chromium_driver_version_release_url)
         if response.ok:
-            result = self._parse_github_api_response(version, response)
+            result = self._parse_github_page(version)
         elif response.status_code == 403:
             result = self._parse_github_page(version)
         else:
@@ -466,25 +463,27 @@ class EdgeDriverManager(WebDriverManagerBase):
 
     def _get_download_url(self, body, version):
         try:
-            tree = lxml.html.fromstring(body.text)
-            link = tree.xpath("//li[contains(@class,'driver-download')]/p[contains(@class,'driver-download__meta')]/a/../../p[contains(text(),'6.17134')]/../a")[0]
-            return link.get('href')
-        except lxml.etree.ParserError:
+            tree = BS(body.text, 'html.parser')
+            mstr = "Release {}".format(version)
+            link_texts = tree.find_all('a', string=re.compile(mstr))
+            return link_texts[0]['href']
+        except Exception:
             return None
 
     def _get_version_number(self, body):
         try:
-            tree = lxml.html.fromstring(body.text)
-            li_text = tree.xpath("//li[contains(@class, 'driver-download')]/p[contains(@class, 'driver-download__meta')]/a/..")[0].text
-            results = re.findall(r"Version: ([\d\.]+) |", li_text)[0]
+            tree = BS(body.text, 'html.parser')
+            link_texts = tree.find_all('a', string=re.compile("Release "))
+            results = re.findall(r"\"WebDriver for release number ([\d\.]+)\"", str(link_texts[0]))
             if bool(results and results[0]):
                 return results[0]
             else:
                 return None
-        except lxml.etree.ParserError:
+        except Exception:
             return None
 
     def _get_latest_version_number(self):
+        # TODO: handle error 500 by sleep & retry here
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
             raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
@@ -512,6 +511,7 @@ class EdgeDriverManager(WebDriverManagerBase):
 
         logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
 
+        # TODO: handle error 500 by sleep & retry here
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
             raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
