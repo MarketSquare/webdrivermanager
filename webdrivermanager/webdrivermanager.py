@@ -14,7 +14,7 @@ import platform
 
 import tqdm
 import requests
-from bs4 import BeautifulSoup as BS
+from bs4 import BeautifulSoup
 from appdirs import AppDirs
 
 try:
@@ -23,7 +23,7 @@ except ImportError:
     from urllib.parse import urlparse  # Python 3.x import
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def _inside_virtualenv():
@@ -31,7 +31,7 @@ def _inside_virtualenv():
 
 
 def raise_runtime_error(msg):
-    logger.error(msg)
+    LOGGER.error(msg)
     raise RuntimeError(msg)
 
 
@@ -51,16 +51,15 @@ class WebDriverManagerBase:
                           or Linux, the default will be 'usr/local/bin', otherwise will be '$HOME/bin'.  On macOS and
                           Linux, a symlink will be created.
         """
-
-        self.bitness = "64" if sys.maxsize > 2 ** 32 else "32"
+        self.bitness = '64' if sys.maxsize > 2 ** 32 else '32'
         self.os_name = os_name or self.get_os_name()
-        self.dirs = AppDirs("WebDriverManager", "salabs_")
+        self.dirs = AppDirs('WebDriverManager', 'salabs_')
 
         if self.os_name in ['mac', 'linux'] and os.geteuid() == 0:
             base_path = self.dirs.site_data_dir
         else:
             if _inside_virtualenv():
-                base_path = os.path.join(sys.prefix, "WebDriverManager")
+                base_path = os.path.join(sys.prefix, 'WebDriverManager')
             else:
                 base_path = self.dirs.user_data_dir
 
@@ -69,18 +68,18 @@ class WebDriverManagerBase:
         else:
             self.download_root = download_root
 
-        if link_path in [None, "AUTO"]:
-            bin_location = "bin"
+        if link_path in [None, 'AUTO']:
+            bin_location = 'bin'
             if _inside_virtualenv():
-                if self.os_name == "win":
-                    bin_location = "Scripts"
+                if self.os_name == 'win':
+                    bin_location = 'Scripts'
                 self.link_path = os.path.join(sys.prefix, bin_location)
             else:
                 if self.os_name in ['mac', 'linux'] and os.geteuid() == 0:
-                    self.link_path = "/usr/local/bin"
+                    self.link_path = '/usr/local/bin'
                 else:
                     dir_in_path = None
-                    if link_path == "AUTO":
+                    if link_path == 'AUTO':
                         dir_in_path = self._find_bin()
                     self.link_path = dir_in_path or os.path.join(base_path, bin_location)
         else:
@@ -88,28 +87,28 @@ class WebDriverManagerBase:
 
         if not os.path.isdir(self.download_root):
             os.makedirs(self.download_root)
-            logger.info("Created download root directory: {0}".format(self.download_root))
+            LOGGER.info('Created download root directory: %s', self.download_root)
         if not os.path.isdir(self.link_path):
             os.makedirs(self.link_path)
-            logger.info("Created symlink directory: {0}".format(self.link_path))
+            LOGGER.info('Created symlink directory: %s', self.link_path)
 
     def _find_bin(self):
         dirs = os.environ['PATH'].split(os.pathsep)
-        for d in dirs:
-            if os.access(d, os.W_OK):
-                return d
+        for directory in dirs:
+            if os.access(directory, os.W_OK):
+                return directory
         return None
 
     def get_os_name(self):
         platform_name = platform.system()
-        namelist = {"Darwin": "mac", "Windows": "win", "Linux": "linux"}
+        namelist = {'Darwin': 'mac', 'Windows': 'win', 'Linux': 'linux'}
         if 'CYGWIN' in platform_name:
-            return "win"
+            return 'win'
 
         return namelist[platform_name]
 
     @abc.abstractmethod
-    def get_download_path(self, version="latest"):
+    def get_download_path(self, version='latest'):
         """
         Method for getting the download path for a web driver binary.
 
@@ -122,7 +121,7 @@ class WebDriverManagerBase:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_download_url(self, version="latest"):
+    def get_download_url(self, version='latest'):
         """
         Method for getting the download URL for a web driver binary.
 
@@ -134,21 +133,21 @@ class WebDriverManagerBase:
         raise NotImplementedError
 
     def get_driver_filename(self):
-        return self.DRIVER_FILENAMES[self.os_name]
+        return self.driver_filenames[self.os_name]
 
     def _get_latest_version_with_github_page_fallback(self, url, fallback_url, required_version):
         version = None
-        info = requests.get("{0}{1}".format(url, required_version))
+        info = requests.get('{0}{1}'.format(url, required_version))
 
         if info.ok:
             version = info.json()['tag_name']
         elif info.status_code == 403:
-            r = requests.get(fallback_url)
-            tree = BS(r.text, 'html.parser')
+            response = requests.get(fallback_url)
+            tree = BeautifulSoup(response.text, 'html.parser')
             latest_release = tree.find('div', {'class', 'release-header'}).findAll('a')[0]
             version = latest_release.text
         else:
-            raise_runtime_error("Error attempting to get version info, got status code: {0}".format(info.status_code))
+            raise_runtime_error('Error attempting to get version info, got status code: {0}'.format(info.status_code))
 
         return version
 
@@ -156,44 +155,43 @@ class WebDriverManagerBase:
         filenames = [asset['name'] for asset in response.json()['assets']]
         filename = [name for name in filenames if self.os_name in name]
         if len(filename) == 0:
-            raise_runtime_error("Error, unable to find a download for os: {0}".format(self.os_name))
+            raise_runtime_error('Error, unable to find a download for os: {0}'.format(self.os_name))
 
         if len(filename) > 1:
             filename = [name for name in filenames if self.os_name + self.bitness in name]
             if len(filename) != 1:
-                raise_runtime_error("Error, unable to determine correct filename for {0}bit {1}".format(self.bitness, self.os_name))
+                raise_runtime_error('Error, unable to determine correct filename for {0}bit {1}'.format(self.bitness, self.os_name))
 
         filename = filename[0]
 
-        result = response.json()["assets"][filenames.index(filename)]["browser_download_url"]
-        logger.info("Download URL: {0}".format(result))
+        result = response.json()['assets'][filenames.index(filename)]['browser_download_url']
+        LOGGER.info('Download URL: %s', result)
         return result
 
     def _parse_github_page(self, version):
-        r = requests.get(self.fallback_url)
-        if version == "latest":
-            release_url = "{}latest".format(self.fallback_url)
-            matcher = r".*\/releases\/download\/.*{}".format(self.os_name)
+        if version == 'latest':
+            release_url = '{}latest'.format(self.fallback_url)  # TODO: fix!
+            matcher = r'.*\/releases\/download\/.*{}'.format(self.os_name)
         else:
-            release_url = "{}tag/{}".format(self.fallback_url, version)
-            matcher = r".*\/releases\/download\/{}\/.*{}".format(version, self.os_name)
+            release_url = '{}tag/{}'.format(self.fallback_url, version)
+            matcher = r'.*\/releases\/download\/{}\/.*{}'.format(version, self.os_name)
 
-        r = requests.get(release_url)
-        if r.status_code != 200:
+        response = requests.get(release_url)
+        if response.status_code != 200:
             return None
 
-        tree = BS(r.text, 'html.parser')
+        tree = BeautifulSoup(response.text, 'html.parser')
         links = tree.find_all('a', href=re.compile(matcher))
         if len(links) == 2:
-            matcher = "{}.*{}".format(matcher, self.bitness)
+            matcher = '{}.*{}'.format(matcher, self.bitness)
             links = tree.find_all('a', href=re.compile(matcher))
 
         if links:
-            return "https://github.com{}".format(links[0]['href'])
+            return 'https://github.com{}'.format(links[0]['href'])
 
         return None
 
-    def download(self, version="latest", show_progress_bar=True):
+    def download(self, version='latest', show_progress_bar=True):
         """
         Method for downloading a web driver binary.
 
@@ -212,12 +210,12 @@ class WebDriverManagerBase:
         if not os.path.isdir(dl_path):
             os.makedirs(dl_path)
         if os.path.isfile(filename_with_path):
-            logger.info("Skipping download. File {0} already on filesystem.".format(filename_with_path))
+            LOGGER.info('Skipping download. File %s already on filesystem.', filename_with_path)
             return filename_with_path
         data = requests.get(download_url, stream=True)
         if data.status_code == 200:
-            logger.debug("Starting download of {0} to {1}".format(download_url, filename_with_path))
-            with open(filename_with_path, mode="wb") as fileobj:
+            LOGGER.debug('Starting download of %s to %s', download_url, filename_with_path)
+            with open(filename_with_path, mode='wb') as fileobj:
                 chunk_size = 1024
                 if show_progress_bar:
                     expected_size = int(data.headers['Content-Length'])
@@ -226,12 +224,12 @@ class WebDriverManagerBase:
                 else:
                     for chunk in data.iter_content(chunk_size):
                         fileobj.write(chunk)
-            logger.debug("Finished downloading {0} to {1}".format(download_url, filename_with_path))
+            LOGGER.debug('Finished downloading %s to %s', download_url, filename_with_path)
             return filename_with_path
-        else:
-            raise_runtime_error("Error downloading file {0}, got status code: {1}".format(filename, data.status_code))
 
-    def download_and_install(self, version="latest", show_progress_bar=True):
+        raise_runtime_error('Error downloading file {0}, got status code: {1}'.format(filename, data.status_code))
+
+    def download_and_install(self, version='latest', show_progress_bar=True):
         """
         Method for downloading a web driver binary, extracting it into the download directory and creating a symlink
         to the binary in the link directory.
@@ -246,41 +244,41 @@ class WebDriverManagerBase:
         """
         driver_filename = self.get_driver_filename()
         if driver_filename is None:
-            raise_runtime_error("Error, unable to find appropriate drivername for {0}.".format(self.os_name))
+            raise_runtime_error('Error, unable to find appropriate drivername for {0}.'.format(self.os_name))
 
         filename_with_path = self.download(version, show_progress_bar=show_progress_bar)
         filename = os.path.split(filename_with_path)[1]
         dl_path = self.get_download_path(version)
-        if filename.lower().endswith(".tar.gz"):
+        if filename.lower().endswith('.tar.gz'):
             extract_dir = os.path.join(dl_path, filename[:-7])
-        elif filename.lower().endswith(".zip"):
+        elif filename.lower().endswith('.zip'):
             extract_dir = os.path.join(dl_path, filename[:-4])
-        elif filename.lower().endswith(".exe"):
+        elif filename.lower().endswith('.exe'):
             extract_dir = os.path.join(dl_path, filename[:-4])
         else:
-            raise_runtime_error("Unknown archive format: {0}".format(filename))
+            raise_runtime_error('Unknown archive format: {0}'.format(filename))
 
         if not os.path.isdir(extract_dir):
             os.makedirs(extract_dir)
-            logger.debug("Created directory: {0}".format(extract_dir))
-        if filename.lower().endswith(".tar.gz"):
-            with tarfile.open(os.path.join(dl_path, filename), mode="r:*") as tar:
+            LOGGER.debug('Created directory: %s', extract_dir)
+        if filename.lower().endswith('.tar.gz'):
+            with tarfile.open(os.path.join(dl_path, filename), mode='r:*') as tar:
                 tar.extractall(extract_dir)
-                logger.debug("Extracted files: {0}".format(", ".join(tar.getnames())))
-        elif filename.lower().endswith(".zip"):
-            with zipfile.ZipFile(os.path.join(dl_path, filename), mode="r") as driver_zipfile:
+                LOGGER.debug('Extracted files: %s', ', '.join(tar.getnames()))
+        elif filename.lower().endswith('.zip'):
+            with zipfile.ZipFile(os.path.join(dl_path, filename), mode='r') as driver_zipfile:
                 driver_zipfile.extractall(extract_dir)
-        elif filename.lower().endswith(".exe"):
+        elif filename.lower().endswith('.exe'):
             shutil.copy2(os.path.join(dl_path, filename), os.path.join(extract_dir, filename))
 
-        for root, dirs, files in os.walk(extract_dir):
+        for root, _, files in os.walk(extract_dir):
             for curr_file in files:
                 if curr_file == driver_filename:
                     actual_driver_filename = os.path.join(root, curr_file)
                     break
 
         if not actual_driver_filename:
-            logger.warn("Cannot locate binary {0} from the archive".format(driver_filename))
+            LOGGER.warning('Cannot locate binary %s from the archive', driver_filename)
             return None
 
         if self.os_name in ['mac', 'linux']:
@@ -288,46 +286,46 @@ class WebDriverManagerBase:
             symlink_target = os.path.join(self.link_path, driver_filename)
             if os.path.islink(symlink_target) or os.path.exists(symlink_target):
                 if os.path.samefile(symlink_src, symlink_target):
-                    logger.info("Symlink already exists: {0} -> {1}".format(symlink_target, symlink_src))
+                    LOGGER.info('Symlink already exists: %s -> %s', symlink_target, symlink_src)
                     return (symlink_src, symlink_target)
-                else:
-                    logger.warning("Symlink target {0} already exists and will be overwritten.".format(symlink_target))
-                    os.unlink(symlink_target)
+
+                LOGGER.warning('Symlink target %s already exists and will be overwritten.', symlink_target)
+                os.unlink(symlink_target)
 
             os.symlink(symlink_src, symlink_target)
-            logger.info("Created symlink: {0} -> {1}".format(symlink_target, symlink_src))
-            st = os.stat(symlink_src)
-            os.chmod(symlink_src, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            LOGGER.info('Created symlink: %s -> %s', symlink_target, symlink_src)
+            symlink_stat = os.stat(symlink_src)
+            os.chmod(symlink_src, symlink_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
             return (symlink_src, symlink_target)
-        elif self.os_name == "win":
-            src_file = actual_driver_filename
-            dest_file = os.path.join(self.link_path, driver_filename)
-            if os.path.isfile(dest_file):
-                logger.info("File {0} already exists and will be overwritten.".format(dest_file))
-            shutil.copy2(src_file, dest_file)
-            return (src_file, dest_file)
+        # self.os_name == 'win':
+        src_file = actual_driver_filename
+        dest_file = os.path.join(self.link_path, driver_filename)
+        if os.path.isfile(dest_file):
+            LOGGER.info('File %s already exists and will be overwritten.', dest_file)
+        shutil.copy2(src_file, dest_file)
+        return (src_file, dest_file)
 
 
 class GeckoDriverManager(WebDriverManagerBase):
     """Class for downloading the Gecko (Mozilla Firefox) WebDriver.
     """
 
-    gecko_driver_releases_url = "https://api.github.com/repos/mozilla/geckodriver/releases/"
-    fallback_url = "https://github.com/mozilla/geckodriver/releases/"
-    DRIVER_FILENAMES = {
-        "win": "geckodriver.exe",
-        "mac": "geckodriver",
-        "linux": "geckodriver",
+    gecko_driver_releases_url = 'https://api.github.com/repos/mozilla/geckodriver/releases/'
+    fallback_url = 'https://github.com/mozilla/geckodriver/releases/'
+    driver_filenames = {
+        'win': 'geckodriver.exe',
+        'mac': 'geckodriver',
+        'linux': 'geckodriver',
     }
 
-    def get_download_path(self, version="latest"):
-        if version == "latest":
+    def get_download_path(self, version='latest'):
+        if version == 'latest':
             ver = self._get_latest_version_with_github_page_fallback(self.gecko_driver_releases_url, self.fallback_url, version)
         else:
             ver = version
-        return os.path.join(self.download_root, "gecko", ver)
+        return os.path.join(self.download_root, 'gecko', ver)
 
-    def get_download_url(self, version="latest"):
+    def get_download_url(self, version='latest'):
         """
         Method for getting the download URL for the Gecko (Mozilla Firefox) driver binary.
 
@@ -336,18 +334,18 @@ class GeckoDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Gecko (Mozilla Firefox) driver binary.
         """
-        if version == "latest":
+        if version == 'latest':
             gecko_driver_version_release_url = self.gecko_driver_releases_url + version
         else:
-            gecko_driver_version_release_url = self.gecko_driver_releases_url + "tags/" + version
-        logger.debug("Attempting to access URL: {0}".format(gecko_driver_version_release_url))
+            gecko_driver_version_release_url = self.gecko_driver_releases_url + 'tags/' + version
+        LOGGER.debug('Attempting to access URL: %s', gecko_driver_version_release_url)
         response = requests.get(gecko_driver_version_release_url)
         if response.ok:
             result = self._parse_github_api_response(version, response)
         elif response.status_code == 403:
             result = self._parse_github_page(version)
         else:
-            raise_runtime_error("Error, unable to get info for gecko driver {0} release. Status code: {1}. Error message: {2}".format(version, response.status_code, response.text))
+            raise_runtime_error('Error, unable to get info for gecko driver {0} release. Status code: {1}. Error message: {2}'.format(version, response.status_code, response.text))
 
         return result
 
@@ -361,25 +359,25 @@ class ChromeDriverManager(WebDriverManagerBase):
     def _get_latest_version_number(self):
         resp = requests.get(self.chrome_driver_base_url + '/o/LATEST_RELEASE')
         if resp.status_code != 200:
-            raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
+            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
         latest_release = requests.get(resp.json()['mediaLink'])
         return latest_release.text
 
-    DRIVER_FILENAMES = {
-        "win": "chromedriver.exe",
-        "mac": "chromedriver",
-        "linux": "chromedriver",
+    driver_filenames = {
+        'win': 'chromedriver.exe',
+        'mac': 'chromedriver',
+        'linux': 'chromedriver',
     }
 
-    def get_download_path(self, version="latest"):
-        if version == "latest":
+    def get_download_path(self, version='latest'):
+        if version == 'latest':
             ver = self._get_latest_version_number()
         else:
             ver = version
-        return os.path.join(self.download_root, "chrome", ver)
+        return os.path.join(self.download_root, 'chrome', ver)
 
-    def get_download_url(self, version="latest"):
+    def get_download_url(self, version='latest'):
         """
         Method for getting the download URL for the Google Chome driver binary.
 
@@ -388,10 +386,10 @@ class ChromeDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Google Chrome driver binary.
         """
-        if version == "latest":
+        if version == 'latest':
             version = self._get_latest_version_number()
 
-        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
+        LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
         chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o')
         matching_versions = [item for item in chrome_driver_objects.json()['items'] if item['name'].startswith(version)]
@@ -401,7 +399,7 @@ class ChromeDriverManager(WebDriverManagerBase):
         elif len(os_matching_versions) == 2:
             result = [item for item in matching_versions if self.os_name + self.bitness in item['name']][0]['mediaLink']
         else:
-            raise_runtime_error("Error, unable to find appropriate download for {0}{1}.".format(self.os_name, self.bitness))
+            raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
 
         return result
 
@@ -410,22 +408,22 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
     """Class for downloading the Opera Chromium WebDriver.
     """
 
-    opera_chromium_driver_releases_url = "https://api.github.com/repos/operasoftware/operachromiumdriver/releases/"
-    fallback_url = "https://github.com/operasoftware/operachromiumdriver/releases/"
-    DRIVER_FILENAMES = {
-        "win": "operadriver.exe",
-        "mac": "operadriver",
-        "linux": "operadriver",
+    opera_chromium_driver_releases_url = 'https://api.github.com/repos/operasoftware/operachromiumdriver/releases/'
+    fallback_url = 'https://github.com/operasoftware/operachromiumdriver/releases/'
+    driver_filenames = {
+        'win': 'operadriver.exe',
+        'mac': 'operadriver',
+        'linux': 'operadriver',
     }
 
-    def get_download_path(self, version="latest"):
-        if version == "latest":
+    def get_download_path(self, version='latest'):
+        if version == 'latest':
             ver = self._get_latest_version_with_github_page_fallback(self.opera_chromium_driver_releases_url, self.fallback_url, version)
         else:
             ver = version
-        return os.path.join(self.download_root, "operachromium", ver)
+        return os.path.join(self.download_root, 'operachromium', ver)
 
-    def get_download_url(self, version="latest"):
+    def get_download_url(self, version='latest'):
         """
         Method for getting the download URL for the Opera Chromium driver binary.
 
@@ -434,18 +432,18 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Opera Chromium driver binary.
         """
-        if version == "latest":
+        if version == 'latest':
             opera_chromium_driver_version_release_url = self.opera_chromium_driver_releases_url + version
         else:
-            opera_chromium_driver_version_release_url = self.opera_chromium_driver_releases_url + "tags/" + version
-        logger.debug("Attempting to access URL: {0}".format(opera_chromium_driver_version_release_url))
+            opera_chromium_driver_version_release_url = self.opera_chromium_driver_releases_url + 'tags/' + version
+        LOGGER.debug('Attempting to access URL: %s', opera_chromium_driver_version_release_url)
         response = requests.get(opera_chromium_driver_version_release_url)
         if response.ok:
             result = self._parse_github_page(version)
         elif response.status_code == 403:
             result = self._parse_github_page(version)
         else:
-            raise_runtime_error("Error, unable to get info for opera chromium driver {0} release. Status code: {1}. Error message: {2}".format(version, response.status_code, response.text))
+            raise_runtime_error('Error, unable to get info for opera chromium driver {0} release. Status code: {1}. Error message: {2}'.format(version, response.status_code, response.text))
 
         return result
 
@@ -453,18 +451,18 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
 class EdgeDriverManager(WebDriverManagerBase):
     """Class for downloading the Edge WebDriver.
     """
-    DRIVER_FILENAMES = {
-        "win": "MicrosoftWebDriver.exe",
-        "mac": None,
-        "linux": None,
+    driver_filenames = {
+        'win': 'MicrosoftWebDriver.exe',
+        'mac': None,
+        'linux': None,
     }
 
     edge_driver_base_url = 'https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/'
 
     def _get_download_url(self, body, version):
         try:
-            tree = BS(body.text, 'html.parser')
-            mstr = "Release {}".format(version)
+            tree = BeautifulSoup(body.text, 'html.parser')
+            mstr = 'Release {}'.format(version)
             link_texts = tree.find_all('a', string=re.compile(mstr))
             return link_texts[0]['href']
         except Exception:
@@ -472,13 +470,13 @@ class EdgeDriverManager(WebDriverManagerBase):
 
     def _get_version_number(self, body):
         try:
-            tree = BS(body.text, 'html.parser')
-            link_texts = tree.find_all('a', string=re.compile("Release "))
-            results = re.findall(r"\"WebDriver for release number ([\d\.]+)\"", str(link_texts[0]))
+            tree = BeautifulSoup(body.text, 'html.parser')
+            link_texts = tree.find_all('a', string=re.compile('Release '))
+            results = re.findall(r'\"WebDriver for release number ([\d\.]+)\"', str(link_texts[0]))
             if bool(results and results[0]):
                 return results[0]
-            else:
-                return None
+
+            return None
         except Exception:
             return None
 
@@ -486,18 +484,18 @@ class EdgeDriverManager(WebDriverManagerBase):
         # TODO: handle error 500 by sleep & retry here
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
-            raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
+            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
         return self._get_version_number(resp)
 
-    def get_download_path(self, version="latest"):
-        if version == "latest":
+    def get_download_path(self, version='latest'):
+        if version == 'latest':
             ver = self._get_latest_version_number()
         else:
             ver = version
-        return os.path.join(self.download_root, "edge", ver)
+        return os.path.join(self.download_root, 'edge', ver)
 
-    def get_download_url(self, version="latest"):
+    def get_download_url(self, version='latest'):
         """
         Method for getting the download URL for the Google Chome driver binary.
 
@@ -506,24 +504,24 @@ class EdgeDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Google Chrome driver binary.
         """
-        if version == "latest":
+        if version == 'latest':
             version = self._get_latest_version_number()
 
-        logger.debug("Detected OS: {0}bit {1}".format(self.bitness, self.os_name))
+        LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
         # TODO: handle error 500 by sleep & retry here
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
-            raise_runtime_error("Error, unable to get version number for latest release, got code: {0}".format(resp.status_code))
+            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
         return self._get_download_url(resp, version)
 
 
-available_drivers = {
-    "chrome": ChromeDriverManager,
-    "firefox": GeckoDriverManager,
-    "gecko": GeckoDriverManager,
-    "mozilla": GeckoDriverManager,
-    "opera": OperaChromiumDriverManager,
-    "edge": EdgeDriverManager,
+AVAILABLE_DRIVERS = {
+    'chrome': ChromeDriverManager,
+    'firefox': GeckoDriverManager,
+    'gecko': GeckoDriverManager,
+    'mozilla': GeckoDriverManager,
+    'opera': OperaChromiumDriverManager,
+    'edge': EdgeDriverManager,
 }

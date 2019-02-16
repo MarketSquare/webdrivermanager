@@ -19,6 +19,7 @@ confidence=
 # --disable=W".
 disable=missing-docstring,
         line-too-long,
+        no-self-use,
         print-statement,
         parameter-unpacking,
         unpacking-in-except,

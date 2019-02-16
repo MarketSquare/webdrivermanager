@@ -1,5 +1,6 @@
 twine
 flake8
+flake8-awesome
 flake8-junit-report
 flake8-self; python_version > '3.0'
 flake8-isort
@@ -18,5 +19,4 @@ doit==0.29; python_version < '3.0'
 doit>0.29; python_version > '3.0'
 unittest-xml-reporting
 pyfakefs==3.5.2
-appdirs
 -r requirements.txt
