@@ -53,12 +53,11 @@ class WebDriverManagerBase:
                           Linux, a symlink will be created.
         """
 
-        self.platform = platform.system()
         self.bitness = "64" if sys.maxsize > 2 ** 32 else "32"
         self.os_name = os_name or self.get_os_name()
         self.dirs = AppDirs("WebDriverManager", "salabs_")
 
-        if self.platform in ['Darwin', 'Linux'] and os.geteuid() == 0:
+        if self.os_name in ['mac', 'linux'] and os.geteuid() == 0:
             base_path = self.dirs.site_data_dir
         else:
             if _inside_virtualenv():
@@ -74,11 +73,11 @@ class WebDriverManagerBase:
         if link_path in [None, "AUTO"]:
             bin_location = "bin"
             if _inside_virtualenv():
-                if self.platform == "Windows":
+                if self.os_name == "win":
                     bin_location = "Scripts"
                 self.link_path = os.path.join(sys.prefix, bin_location)
             else:
-                if self.platform in ['Darwin', 'Linux'] and os.geteuid() == 0:
+                if self.os_name in ['mac', 'linux'] and os.geteuid() == 0:
                     self.link_path = "/usr/local/bin"
                 else:
                     dir_in_path = None
@@ -103,9 +102,12 @@ class WebDriverManagerBase:
         return None
 
     def get_os_name(self):
+        platform_name  = platform.system()
         namelist = {"Darwin": "mac", "Windows": "win", "Linux": "linux"}
+        if 'CYGWIN' in platform_name:
+            return "win"
 
-        return namelist[self.platform]
+        return namelist[platform_name]
 
     @abc.abstractmethod
     def get_download_path(self, version="latest"):
@@ -284,7 +286,7 @@ class WebDriverManagerBase:
             logger.warn("Cannot locate binary {0} from the archive".format(driver_filename))
             return None
 
-        if self.platform in ['Darwin', 'Linux']:
+        if self.os_name in ['mac', 'linux']:
             symlink_src = actual_driver_filename
             symlink_target = os.path.join(self.link_path, driver_filename)
             if os.path.islink(symlink_target) or os.path.exists(symlink_target):
@@ -300,7 +302,7 @@ class WebDriverManagerBase:
             st = os.stat(symlink_src)
             os.chmod(symlink_src, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
             return (symlink_src, symlink_target)
-        elif self.platform == "Windows":
+        elif self.os_name == "win":
             src_file = actual_driver_filename
             dest_file = os.path.join(self.link_path, driver_filename)
             if os.path.isfile(dest_file):
