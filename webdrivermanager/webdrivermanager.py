@@ -208,8 +208,8 @@ class WebDriverManagerBase:
         :param show_progress_bar: Boolean (default=install_requires) indicating if a progress bar should be shown in the console.
         :returns: The path + filename to the downloaded web driver binary.
         """
-        download_url = self.get_download_url(version)
-        filename = os.path.split(urlparse(download_url).path)[1]
+        (download_url, filename) = self.get_download_url(version)
+
         dl_path = self.get_download_path(version)
         filename_with_path = os.path.join(dl_path, filename)
         if not os.path.isdir(dl_path):
@@ -346,13 +346,13 @@ class GeckoDriverManager(WebDriverManagerBase):
         LOGGER.debug('Attempting to access URL: %s', gecko_driver_version_release_url)
         response = requests.get(gecko_driver_version_release_url)
         if response.ok:
-            result = self._parse_github_api_response(version, response)
+            url = self._parse_github_api_response(version, response)
         elif response.status_code == 403:
-            result = self._parse_github_page(version)
+            url = self._parse_github_page(version)
         else:
             raise_runtime_error('Error, unable to get info for gecko driver {0} release. Status code: {1}. Error message: {2}'.format(version, response.status_code, response.text))
 
-        return result
+        return (url, os.path.split(urlparse(url).path)[1])
 
 
 class ChromeDriverManager(WebDriverManagerBase):
@@ -397,16 +397,14 @@ class ChromeDriverManager(WebDriverManagerBase):
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
         chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o')
-        matching_versions = [item for item in chrome_driver_objects.json()['items'] if item['name'].startswith(version)]
-        os_matching_versions = [item for item in matching_versions if self.os_name in item['name']]
-        if len(os_matching_versions) == 1:
-            result = os_matching_versions[0]['mediaLink']
-        elif len(os_matching_versions) == 2:
-            result = [item for item in matching_versions if self.os_name + self.bitness in item['name']][0]['mediaLink']
-        else:
-            raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
+        matcher = r"{0}/.*{1}{2}.*".format(version, self.os_name, self.bitness)
+        entry = [obj for obj in chrome_driver_objects.json()['items'] if re.match(matcher, obj['name'])]
+        if not entry:
+            raise_runtime_error("Error, unable to find appropriate download for {0}{1}.".format(self.os_name, self.bitness))
 
-        return result
+        url = entry[0]['mediaLink']
+        filename = os.path.basename(entry[0]['name'])
+        return (url, filename)
 
 
 class OperaChromiumDriverManager(WebDriverManagerBase):
@@ -444,13 +442,13 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
         LOGGER.debug('Attempting to access URL: %s', opera_chromium_driver_version_release_url)
         response = requests.get(opera_chromium_driver_version_release_url)
         if response.ok:
-            result = self._parse_github_page(version)
+            url = self._parse_github_api_response(version, response)
         elif response.status_code == 403:
-            result = self._parse_github_page(version)
+            url = self._parse_github_page(version)
         else:
             raise_runtime_error('Error, unable to get info for opera chromium driver {0} release. Status code: {1}. Error message: {2}'.format(version, response.status_code, response.text))
 
-        return result
+        return (url, os.path.split(urlparse(url).path)[1])
 
 
 class EdgeDriverManager(WebDriverManagerBase):
@@ -519,7 +517,8 @@ class EdgeDriverManager(WebDriverManagerBase):
         if resp.status_code != 200:
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
-        return self._get_download_url(resp, version)
+        url = self._get_download_url(resp, version)
+        return (url, os.path.split(urlparse(url).path)[1])
 
 
 AVAILABLE_DRIVERS = {
