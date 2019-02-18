@@ -95,14 +95,14 @@ Command line options
 
         Tool for downloading and installing WebDriver binaries.
 
-        positional arguments:
-            browser               Browser to download the corresponding WebDriver
-                                  binary. Valid values are: "chrome", "firefox",
-                                  "gecko", "mozilla", "opera". Optionally specify a
-                                  version number of the WebDriver binary as follows:
-                                  "browser:version" e.g. "chrome:2.39". If no version
-                                  number is specified, the latest available version of
-                                  the WebDriver binary will be downloaded.
+	positional arguments:
+	   browser               Browser to download the corresponding WebDriver
+				 binary. Valid values are: chrome, firefox, gecko,
+				 mozilla, opera, edge. Optionally specify a version
+				 number of the WebDriver binary as follows:
+				 'browser:version' e.g. 'chrome:2.39'. If no version
+				 number is specified, the latest available version of
+				 the WebDriver binary will be downloaded.
 
         optional arguments:
             -h, --help            show this help message and exit
