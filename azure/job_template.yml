@@ -46,6 +46,7 @@ jobs:
   - script: |
       flake8 --output flake8.txt
       flake8_junit flake8.txt flake8.xml
+      cat flake8.xml
       pylint webdrivermanager/ tests/ c --exit-zero --output-format=pylint2junit.JunitReporter > pylint.xml
     displayName: 'Running Static Analysis'
     continueOnError: true
