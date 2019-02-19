@@ -9,7 +9,6 @@ flake8-alfred; python_version > '3.0'
 flake8-tabs; python_version > '3.0'
 flake8-builtins
 flake8-commas
-flake8-comprehensions
 pylint
 pylint2junit
 python-language-server[all]
