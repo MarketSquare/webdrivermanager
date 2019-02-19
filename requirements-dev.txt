@@ -1,6 +1,6 @@
 twine
 flake8
-flake8-awesome
+flake8-awesome; python_version > '3.0'
 flake8-junit-report
 flake8-self; python_version > '3.0'
 flake8-isort
