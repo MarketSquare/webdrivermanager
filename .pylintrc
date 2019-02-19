@@ -25,6 +25,7 @@ disable=missing-docstring,
         parameter-unpacking,
         unpacking-in-except,
         import-self,
+        wrong-import-position,
         old-raise-syntax,
         backtick,
         long-suffix,
@@ -161,7 +162,7 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io
 
 
 [FORMAT]
-expected-line-ending-format=LF
+expected-line-ending-format=
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 indent-after-paren=4
 indent-string='    '

@@ -48,8 +48,7 @@ class WebDriverManagerBase:
             return self.dirs.site_data_dir
         if _inside_virtualenv():
             return os.path.join(sys.prefix, 'WebDriverManager')
-        return  self.dirs.user_data_dir
-
+        return self.dirs.user_data_dir
 
     def __init__(self, download_root=None, link_path=None, os_name=None):
         """
@@ -61,7 +60,7 @@ class WebDriverManagerBase:
                           or Linux, the default will be 'usr/local/bin', otherwise will be '$HOME/bin'.  On macOS and
                           Linux, a symlink will be created.
         """
-        self.bitness = '64' if sys.maxsize > 2 ** 32 else '32'
+        self.bitness = '64' if sys.maxsize > 2 ** 32 else '32'  # noqa: KEK100
         self.os_name = os_name or self.get_os_name()
         self.dirs = AppDirs('WebDriverManager', 'salabs_')
         base_path = self._get_basepath()
@@ -83,7 +82,6 @@ class WebDriverManagerBase:
                     self.link_path = dir_in_path or os.path.join(base_path, bin_location)
         else:
             self.link_path = link_path
-
 
         try:
             os.makedirs(self.download_root)
@@ -398,18 +396,18 @@ class ChromeDriverManager(WebDriverManagerBase):
 
         chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o').json()
         # chromedriver only has 64 bit versions of mac and 32bit versions of windows. For now.
-        if self.os_name == "win":
-            local_bitness = "32"
-        elif self.os_name == "mac":
-            local_bitness = "64"
+        if self.os_name == 'win':
+            local_bitness = '32'
+        elif self.os_name == 'mac':
+            local_bitness = '64'
         else:
             local_bitness = self.bitness
 
-        matcher = r"{0}/.*{1}{2}.*".format(version, self.os_name, local_bitness)
+        matcher = r'{0}/.*{1}{2}.*'.format(version, self.os_name, local_bitness)
 
         entry = [obj for obj in chrome_driver_objects['items'] if re.match(matcher, obj['name'])]
         if not entry:
-            raise_runtime_error("Error, unable to find appropriate download for {0}{1}.".format(self.os_name, self.bitness))
+            raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
 
         url = entry[0]['mediaLink']
         filename = os.path.basename(entry[0]['name'])

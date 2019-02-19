@@ -1,3 +1,4 @@
+# pylint: disable=attribute-defined-outside-init
 import sys
 import tarfile  # noqa: E402
 from os import mkdir
@@ -16,7 +17,7 @@ import webdrivermanager  # noqa: E402 I001
 try:
     from tempfile import TemporaryDirectory
 except ImportError:
-    from backports.tempfile import TemporaryDirectory
+    from backports.tempfile import TemporaryDirectory   # pylint: disable=import-error
 
 
 class AutomaticBaseTest(FakeFSTestCase):
