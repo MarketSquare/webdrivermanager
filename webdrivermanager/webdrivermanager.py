@@ -55,10 +55,12 @@ class WebDriverManagerBase:
         Initializer for the class.  Accepts two optional parameters.
 
         :param download_root: Path where the web driver binaries will be downloaded.  If running as root in macOS or
-                              Linux, the default will be '/usr/local/webdriver', otherwise will be '$HOME/webdriver'.
+                              Linux, the default will be '/usr/local/webdriver', otherwise python appdirs module will
+                              be used to determine appropriate location if no value given.
         :param link_path: Path where the link to the web driver binaries will be created.  If running as root in macOS
-                          or Linux, the default will be 'usr/local/bin', otherwise will be '$HOME/bin'.  On macOS and
-                          Linux, a symlink will be created.
+                          or Linux, the default will be 'usr/local/bin', otherwise appdirs python module will be used 
+                          to determine appropriate location if no value give. If set "AUTO", link will be created into 
+                          first writeable directory in PATH. If set "SKIP", no link will be created.
         """
 
         if not bitness:
@@ -85,6 +87,8 @@ class WebDriverManagerBase:
                     if link_path == 'AUTO':
                         dir_in_path = self._find_bin()
                     self.link_path = dir_in_path or os.path.join(base_path, bin_location)
+        elif link_path == 'SKIP':
+            self.link_path = None
         else:
             self.link_path = link_path
 
@@ -94,11 +98,12 @@ class WebDriverManagerBase:
         except OSError:
             pass
 
-        try:
-            os.makedirs(self.link_path)
-            LOGGER.info('Created symlink directory: %s', self.link_path)
-        except OSError:
-            pass
+        if self.link_path is not None:
+            try:
+                os.makedirs(self.link_path)
+                LOGGER.info('Created symlink directory: %s', self.link_path)
+            except OSError:
+                pass
 
     def _find_bin(self):
         dirs = os.environ['PATH'].split(os.pathsep)
@@ -288,6 +293,9 @@ class WebDriverManagerBase:
         if not actual_driver_filename:
             LOGGER.warning('Cannot locate binary %s from the archive', driver_filename)
             return None
+
+        if not self.link_path:
+            return (actual_driver_filename, None)
 
         if self.os_name in ['mac', 'linux']:
             symlink_src = actual_driver_filename
