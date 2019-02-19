@@ -111,13 +111,17 @@ Command line options
             --linkpath F, -l F    Where to link the webdriver binary to. Set to "AUTO"
                                   if you need some intelligence to decice where to place
                                   the final webdriver binary
+            --linkpath F, -l F    Where to link the webdriver binary to. Set to "AUTO"
+                                  if you need some intelligense to decide where to place
+                                  the final webdriver binary. If set to "SKIP", no
+                                  link/copy done
             --os OSNAME, -o OSNAME
                                   Overrides os detection with given os name
 
 
 Do note that `--downloadpath`/`-d` flag location is used for storing the whole downloaded and then `--linkpath`/`-l` path location is where the final binary is either symlinled or copied to.  Linkpath should be the directory you either already have in PATH or you should place there since tools using these webdrivers usually locate the appropriate webdriver binary from PATH environment variable.
 
-If linkpath flag is set to *AUTO*, tool will iterate over your current PATH environment variable and tries to find the first writeable directory within it and place the copy or symlink into it.
+If linkpath flag is set to *AUTO*, tool will iterate over your current PATH environment variable and tries to find the first writeable directory within it and place the copy or symlink into it. If linkpath is set to *SKIP*, only download is done, linking/copying is skipped.
 
 
 RELEASES
@@ -143,9 +147,16 @@ RELEASES
 * 0.6.0
     * python module exports available_drivers dict
 * 0.7.0
+    * internal release
+* 0.7.1
     * default directories changed to use ones provided by appdirs python module.
     * if link_path is set to AUTO, try to locate a writeable directory in PATH environment variable and drop the binary there.
     * Overwrite webdriver also if it is binary (In MacOS & Linux)
+    * should work now in cygwin too.
+    * Code rewrite to get rid of lxml in favour of beautifulsoup. Should eaze up installation as no more compilations required.
+    * code cleanups.
+    * Can override platform bitness detection. Usefull if downloading binaries for other platforms.
+    * Can override link creation. Usefull if downloading binaries for other platforms.
 
 License
 -------
