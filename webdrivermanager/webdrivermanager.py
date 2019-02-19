@@ -88,13 +88,13 @@ class WebDriverManagerBase:
         try:
             os.makedirs(self.download_root)
             LOGGER.info('Created download root directory: %s', self.download_root)
-        except FileExistsError:
+        except OSError:
             pass
 
         try:
             os.makedirs(self.link_path)
             LOGGER.info('Created symlink directory: %s', self.link_path)
-        except FileExistsError:
+        except OSError:
             pass
 
     def _find_bin(self):
