@@ -396,9 +396,18 @@ class ChromeDriverManager(WebDriverManagerBase):
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
-        chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o')
-        matcher = r"{0}/.*{1}{2}.*".format(version, self.os_name, self.bitness)
-        entry = [obj for obj in chrome_driver_objects.json()['items'] if re.match(matcher, obj['name'])]
+        chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o').json()
+        # chromedriver only has 64 bit versions of mac and 32bit versions of windows. For now.
+        if self.os_name == "win":
+            local_bitness = "32"
+        elif self.os_name == "mac":
+            local_bitness = "64"
+        else:
+            local_bitness = self.bitness
+
+        matcher = r"{0}/.*{1}{2}.*".format(version, self.os_name, local_bitness)
+
+        entry = [obj for obj in chrome_driver_objects['items'] if re.match(matcher, obj['name'])]
         if not entry:
             raise_runtime_error("Error, unable to find appropriate download for {0}{1}.".format(self.os_name, self.bitness))
 
