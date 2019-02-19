@@ -7,6 +7,7 @@ import argparse
 from webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
 
 OS_NAMES = ['mac', 'win', 'linux']
+BITNESS = ["32","64"]
 
 
 def parse_command_line():
@@ -17,6 +18,7 @@ def parse_command_line():
     parser.add_argument('--downloadpath', '-d', action='store', dest='downloadpath', metavar='F', default=None, help='Where to download the webdriver binaries')
     parser.add_argument('--linkpath', '-l', action='store', dest='linkpath', metavar='F', default=None, help='Where to link the webdriver binary to. Set to "AUTO" if you need some intelligence to decice where to place the final webdriver binary')
     parser.add_argument('--os', '-o', action='store', dest='os_name', choices=OS_NAMES, metavar='OSNAME', default=None, help='Overrides os detection with given os name. Values: {0}'.format(', '.join(OS_NAMES)))
+    parser.add_argument('--bitness', '-b', action='store', dest='bitness', choices=BITNESS, metavar='BITS', default=None, help='Overrides bitness detection with given value. Values: {0}'.format(', '.join(BITNESS)))
     return parser.parse_args()
 
 
@@ -29,7 +31,7 @@ def main():
             version = 'latest'
         if browser.lower() in DOWNLOADERS.keys():
             print('Downloading WebDriver for browser: "{0}"'.format(browser))
-            downloader = DOWNLOADERS[browser](args.downloadpath, args.linkpath, args.os_name)
+            downloader = DOWNLOADERS[browser](args.downloadpath, args.linkpath, args.os_name, args.bitness)
             extracted_binary, link = downloader.download_and_install(version)
             print('Driver binary downloaded to: "{0}"'.format(extracted_binary))
             if os.path.islink(link):

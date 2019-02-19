@@ -50,7 +50,7 @@ class WebDriverManagerBase:
             return os.path.join(sys.prefix, 'WebDriverManager')
         return self.dirs.user_data_dir
 
-    def __init__(self, download_root=None, link_path=None, os_name=None):
+    def __init__(self, download_root=None, link_path=None, os_name=None, bitness=None):
         """
         Initializer for the class.  Accepts two optional parameters.
 
@@ -60,7 +60,12 @@ class WebDriverManagerBase:
                           or Linux, the default will be 'usr/local/bin', otherwise will be '$HOME/bin'.  On macOS and
                           Linux, a symlink will be created.
         """
-        self.bitness = '64' if sys.maxsize > 2 ** 32 else '32'  # noqa: KEK100
+
+        if not bitness:
+            self.bitness = '64' if sys.maxsize > 2 ** 32 else '32'  # noqa: KEK100
+        else:
+            self.bitness = bitness
+
         self.os_name = os_name or self.get_os_name()
         self.dirs = AppDirs('WebDriverManager', 'salabs_')
         base_path = self._get_basepath()
