@@ -76,7 +76,7 @@ class WebDriverManagerBase:
         if link_path in [None, 'AUTO']:
             bin_location = 'bin'
             if _inside_virtualenv():
-                if self.os_name == 'win':
+                if self.os_name == 'win' and 'CYGWIN' not in platform.system():
                     bin_location = 'Scripts'
                 self.link_path = os.path.join(sys.prefix, bin_location)
             else:
@@ -319,6 +319,8 @@ class WebDriverManagerBase:
         if os.path.isfile(dest_file):
             LOGGER.info('File %s already exists and will be overwritten.', dest_file)
         shutil.copy2(src_file, dest_file)
+        symlink_stat = os.stat(dest_file)
+        os.chmod(dest_file, symlink_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return (src_file, dest_file)
 
 
