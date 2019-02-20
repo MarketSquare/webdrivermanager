@@ -157,6 +157,8 @@ RELEASES
     * code cleanups.
     * Can override platform bitness detection. Usefull if downloading binaries for other platforms.
     * Can override link creation. Usefull if downloading binaries for other platforms.
+* 0.7.2
+    * Fixed a bug in windows checking if binary exists and if it did not, it threw unhandled exception resulting in crash
 
 License
 -------

@@ -58,8 +58,8 @@ class WebDriverManagerBase:
                               Linux, the default will be '/usr/local/webdriver', otherwise python appdirs module will
                               be used to determine appropriate location if no value given.
         :param link_path: Path where the link to the web driver binaries will be created.  If running as root in macOS
-                          or Linux, the default will be 'usr/local/bin', otherwise appdirs python module will be used 
-                          to determine appropriate location if no value give. If set "AUTO", link will be created into 
+                          or Linux, the default will be 'usr/local/bin', otherwise appdirs python module will be used
+                          to determine appropriate location if no value give. If set "AUTO", link will be created into
                           first writeable directory in PATH. If set "SKIP", no link will be created.
         """
 
@@ -316,11 +316,14 @@ class WebDriverManagerBase:
         # self.os_name == 'win':
         src_file = actual_driver_filename
         dest_file = os.path.join(self.link_path, driver_filename)
-        if os.path.isfile(dest_file):
-            LOGGER.info('File %s already exists and will be overwritten.', dest_file)
+        try:
+            if os.path.isfile(dest_file):
+                LOGGER.info('File %s already exists and will be overwritten.', dest_file)
+        except OSError:
+            pass
         shutil.copy2(src_file, dest_file)
-        symlink_stat = os.stat(dest_file)
-        os.chmod(dest_file, symlink_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        dest_stat = os.stat(dest_file)
+        os.chmod(dest_file, dest_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return (src_file, dest_file)
 
 
