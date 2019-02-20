@@ -7,7 +7,7 @@ import argparse
 from webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
 
 OS_NAMES = ['mac', 'win', 'linux']
-BITNESS = ["32","64"]
+BITNESS = ["32", "64"]
 
 
 def parse_command_line():

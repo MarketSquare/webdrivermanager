@@ -21,20 +21,26 @@ with open(join(CWD, 'requirements.txt'), encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
 
 CLASSIFIERS='''
-Development Status :: 3 - Alpha
+Development Status :: 4 - Beta
 Environment :: Console
 Intended Audience :: Developers
 Intended Audience :: End Users/Desktop
+Intended Audience :: Information Technology
+Intended Audience :: System Administrators
 License :: OSI Approved :: MIT License
 Programming Language :: Python
 Programming Language :: Python :: 2
 Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3
-Programming Language :: Python :: 3.6
+Programming Language :: Python :: 3.7
 Topic :: Software Development :: Libraries
 Topic :: Software Development :: Quality Assurance
 Topic :: Software Development :: Testing
 Topic :: Utilities
+Operating System :: MacOS
+Operating System :: Microsoft :: Windows
+Operating System :: POSIX :: Linux
+Operating System :: POSIX :: Other
 '''.strip().splitlines()
 
 setup(name=PACKAGE_NAME,
