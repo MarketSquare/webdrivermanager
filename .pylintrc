@@ -1,5 +1,5 @@
 [MASTER]
-extension-pkg-whitelist=lxml.etree
+extension-pkg-whitelist=
 ignore=.git,__pycache__,dist,venv
 persistent=no
 unsafe-load-any-extension=no
