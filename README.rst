@@ -21,7 +21,7 @@ This module is dependent on the following additional packages:
 
 - `requests <https://pypi.org/project/requests/>`_
 - `tqdm <https://pypi.org/project/tqdm/>`_
-- `lxml <https://pypi.org/project/lxml/>`_
+- `BeautifulSoup4 <https://pypi.org/project/beautifulsoup4/>`_
 - `appdirs <https://pypi.org/project/appdirs/>`_
 
 
