@@ -61,7 +61,7 @@ jobs:
     condition: eq(variables['os_name'], 'OSX')
 
   - script: |
-      pylint webdrivermanager/ test/ --exit-zero --output-format=pylint2junit.JunitReporter > pylint.xml
+      pylint webdrivermanager/ test/ --exit-zero --output-format=json > pylint.xml
     displayName: 'Running Pylint Static Analysis'
     continueOnError: true
     condition: eq(variables['os_name'], 'OSX')
