@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import os.path
 import argparse
 from version import get_version
 from webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
+from requests import ConnectionError
+
 
 OS_NAMES = ['mac', 'win', 'linux']
 BITNESS = ["32", "64"]
@@ -33,7 +36,11 @@ def main():
         if browser.lower() in DOWNLOADERS.keys():
             print('Downloading WebDriver for browser: "{0}"'.format(browser))
             downloader = DOWNLOADERS[browser](args.downloadpath, args.linkpath, args.os_name, args.bitness)
-            extracted_binary, link = downloader.download_and_install(version)
+            try:
+                extracted_binary, link = downloader.download_and_install(version)
+            except ConnectionError:
+                print("Unable to download webdriver's at this time due to network connectivity error")
+                sys.exit(1)
             print('Driver binary downloaded to: "{0}"'.format(extracted_binary))
             if link is not None:
                 if os.path.islink(link):
@@ -44,7 +51,7 @@ def main():
                 if link_path not in os.environ['PATH'].split(os.pathsep):
                     print('WARNING: Path "{0}" is not in the PATH environment variable.'.format(link_path))
             else:
-                    print('Linking webdriver skipped'.format(link))
+                print('Linking webdriver skipped'.format(link))
         else:
             print('Unrecognized browser: "{0}".  Ignoring...'.format(browser))
         print('')
