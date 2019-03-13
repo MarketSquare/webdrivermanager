@@ -2,8 +2,10 @@ Changelog
 =========
 
 
-(unreleased)
-------------
+0.7.3 (2019-03-13)
+------------------
+- Show human readable message on connection error. [Jani Mikkonen]
+- Changelog into a separate file. [Jani Mikkonen]
 - Add version information. [Jani Mikkonen]
 - Lxml removed from pylintrc. [Jani Mikkonen]
 - Fixed readme. [Jani Mikkonen]
@@ -11,16 +13,12 @@ Changelog
 
 0.7.2 (2019-02-20)
 ------------------
-- Version bump to 0.7.2. [Jani Mikkonen]
 - Bugfix: unhandled exception if windows binary did not exists. [Jani
   Mikkonen]
 
 
 0.7.1 (2019-02-19)
 ------------------
-- Version bump. [Jani Mikkonen]
-
-  and readme updates
 - Cygwin bug fixes. [Jani Mikkonen]
 
   * mark destination as executable
@@ -67,7 +65,6 @@ Changelog
 0.5.0 (2019-01-04)
 ------------------
 - Export test results to azure. [Jani Mikkonen]
-- Version bump to 0.5.0. [Jani Mikkonen]
 - Dont crash with unknown browser string. [Jani Mikkonen]
 - Basic support for edge. [Jani Mikkonen]
 - Add possibility to download any os binaries. [Jani Mikkonen]
@@ -87,7 +84,6 @@ Changelog
 
 0.4.1 (2018-10-31)
 ------------------
-- Version bump. [Jani Mikkonen]
 - Fix & release. [Jani Mikkonen]
 - Code deduplication. [Jani Mikkonen]
 - Doit tasks and few dependencies for dev side. [Jani Mikkonen]
@@ -112,7 +108,6 @@ Changelog
 
 0.4.0 (2018-10-28)
 ------------------
-- Version bump to 0.4.0. [Jani Mikkonen]
 - Fixed chrome/opera download in mac. [Jani Mikkonen]
 - Setup.py pulls requirements.txt. [Jani Mikkonen]
 - Merge pull request #1 from quarckster/geckodriver_fix. [Jani Mikkonen]
@@ -126,7 +121,6 @@ Changelog
 
 0.3.0 (2018-10-27)
 ------------------
-- Version bump. [Jani Mikkonen]
 - Updated readme. [Jani Mikkonen]
 - Cache get_download_path calls. [Jani Mikkonen]
 - Various cleanups. [Jani Mikkonen]
