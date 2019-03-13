@@ -3,6 +3,7 @@ extension-pkg-whitelist=
 ignore=.git,__pycache__,dist,venv
 persistent=no
 unsafe-load-any-extension=no
+load-plugins=pylint_junit
 
 
 [MESSAGES CONTROL]
