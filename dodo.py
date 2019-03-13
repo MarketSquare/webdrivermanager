@@ -8,6 +8,12 @@ def task_tests():
     }
 
 
+def task_changelog():
+    return {
+        'actions': ['gitchangelog > CHANGELOG'],
+    }
+
+
 def task_coverage():
     return {
         'actions': ['coverage run test/test_acceptance.py'],

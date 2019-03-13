@@ -18,4 +18,5 @@ doit==0.29; python_version < '3.0'
 doit>0.29; python_version > '3.0'
 unittest-xml-reporting
 pyfakefs==3.5.2
+gitchangelog
 -r requirements.txt

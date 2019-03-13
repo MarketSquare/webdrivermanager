@@ -1,0 +1,182 @@
+Changelog
+=========
+
+
+(unreleased)
+------------
+- Add version information. [Jani Mikkonen]
+- Lxml removed from pylintrc. [Jani Mikkonen]
+- Fixed readme. [Jani Mikkonen]
+
+
+0.7.2 (2019-02-20)
+------------------
+- Version bump to 0.7.2. [Jani Mikkonen]
+- Bugfix: unhandled exception if windows binary did not exists. [Jani
+  Mikkonen]
+
+
+0.7.1 (2019-02-19)
+------------------
+- Version bump. [Jani Mikkonen]
+
+  and readme updates
+- Cygwin bug fixes. [Jani Mikkonen]
+
+  * mark destination as executable
+  * place executable into bin instead of scripts if running on cygwin
+    python
+- Add option to skip link creation. [Jani Mikkonen]
+
+  Fixes #11
+- Enable choosing binary bitness. [Jani Mikkonen]
+
+  Fixes #12
+- Moar lintian fixes. [Jani Mikkonen]
+- Bugfix: handle chromedriver bitness across platforms. [Jani Mikkonen]
+- Fix for python2/3 compatibility. [Jani Mikkonen]
+- Fix for requirements. [Jani Mikkonen]
+- Rewrite for get_download_url. [Jani Mikkonen]
+
+  Mainly to clean up chromedriver filename but touched others also to
+  return also filename.
+- Updated requirements-dev. [Jani Mikkonen]
+- Updated readme to include edge. [Jani Mikkonen]
+- Pylint fixes. [Jani Mikkonen]
+- BeautifulSoup instead of lxml. [Jani Mikkonen]
+
+  Fixes #9
+- Run flake8 & pylint on ci and generate junits. [Jani Mikkonen]
+- Cygwin support. [Jani Mikkonen]
+- Extended tests and lots of flake8 fixes. [Jani Mikkonen]
+- Updated readme. [Jani Mikkonen]
+- Overwrite also binary if it exists. [Jani Mikkonen]
+
+  Fixes #7
+- Option to autodiscover bin location. [Jani Mikkonen]
+
+
+0.6.0 (2019-01-29)
+------------------
+- Merge branch 'master' of github.com:Omenia/webdrivermanager. [Jani
+  Mikkonen]
+- Refactor cli portion. [Jani Mikkonen]
+- Refactor cli portion. [Jani Mikkonen]
+
+
+0.5.0 (2019-01-04)
+------------------
+- Export test results to azure. [Jani Mikkonen]
+- Version bump to 0.5.0. [Jani Mikkonen]
+- Dont crash with unknown browser string. [Jani Mikkonen]
+- Basic support for edge. [Jani Mikkonen]
+- Add possibility to download any os binaries. [Jani Mikkonen]
+- Removed dead code. [Jani Mikkonen]
+
+
+0.4.2 (2018-11-02)
+------------------
+- Release: 0.4.2. [Jani Mikkonen]
+- Merge pull request #4 from quarckster/fix_github. [Jani Mikkonen]
+
+  Fixed fallback github method
+- Corner case for Mac OS X. [Dmitrii Misharov]
+- Fixed fallback github method. [Dmitrii Misharov]
+- Dont publish artifacts. [Jani Mikkonen]
+
+
+0.4.1 (2018-10-31)
+------------------
+- Version bump. [Jani Mikkonen]
+- Fix & release. [Jani Mikkonen]
+- Code deduplication. [Jani Mikkonen]
+- Doit tasks and few dependencies for dev side. [Jani Mikkonen]
+- Publish artifacts task. [Jani Mikkonen]
+- Python 2.7 fix. [Jani Mikkonen]
+- Removed cruft. [Jani Mikkonen]
+- Basic pipeline. [Jani Mikkonen]
+- Fix download_and_install show_progress_bar handling. [Jani Mikkonen]
+
+  Value was always set to true even if user wanted no output
+- Acceptance tests to just prevent things getting broken. [Jani
+  Mikkonen]
+- Bug fixes: [Jani Mikkonen]
+
+  * Fallback to releases page wasnt implemented for
+    OperaChromiumDriverManager when calling get_download_path
+
+  * Fallback to releases didnt find geckodriver release as the geckodriver
+    in macos does not contain bitness
+- All Downloaders into Managers. [Jani Mikkonen]
+
+
+0.4.0 (2018-10-28)
+------------------
+- Version bump to 0.4.0. [Jani Mikkonen]
+- Fixed chrome/opera download in mac. [Jani Mikkonen]
+- Setup.py pulls requirements.txt. [Jani Mikkonen]
+- Merge pull request #1 from quarckster/geckodriver_fix. [Jani Mikkonen]
+
+  Fallback download methods
+- Added lxml dependency. [Dmitry Misharov]
+- Added a fallback download method for opera chromium driver. [Dmitry
+  Misharov]
+- Added a fallback download method for geckodriver. [Dmitrii Misharov]
+
+
+0.3.0 (2018-10-27)
+------------------
+- Version bump. [Jani Mikkonen]
+- Updated readme. [Jani Mikkonen]
+- Cache get_download_path calls. [Jani Mikkonen]
+- Various cleanups. [Jani Mikkonen]
+
+  * few lint fixes
+   * cache platform.system() calls
+   * code reuse for bitness and os_name
+- Updated readme. [Jani Mikkonen]
+
+
+0.2.0 (2018-10-26)
+------------------
+- Utf8 for the win. [Jani Mikkonen]
+- Support passing dl and linkpath from cli. [Jani Mikkonen]
+- Misc changes. [Jani Mikkonen]
+
+  * some lint fixes
+  * setup.py changes
+  * twine added to requirements
+- Setup changes. [Jani Mikkonen]
+- Dev requirements. [Jani Mikkonen]
+- Fix setup.py. [Jani Mikkonen]
+- If venv is activate, choose install location accordingly. [Jani
+  Mikkonen]
+- Rename the poroject. [Jani Mikkonen]
+- Fix up dependencies, add a few more classifiers to setup. [Leonides T.
+  Saguisag, Jr]
+- Updated README.rst to include info about command line tool,
+  downloaders for Chrome and Chromium-based Opera browsers. [Leonides T.
+  Saguisag, Jr]
+- Finish adding support for downloading a specific WebDriver version to
+  the command-line tool. [Leonides T. Saguisag, Jr]
+- Fix display bug if link_path is not in the PATH environment variable.
+  [Leonides T. Saguisag, Jr]
+- Add command-line support. [Leonides T. Saguisag, Jr]
+- Initial work on OperaChromiumDriverDownloader class. Change download
+  behavior to include webdriver name and version in the download path
+  (needed since the version number is not embedded in the filename for
+  the Opera driver). Fix bug where the executable bit was not getting
+  set on the extracted driver binary. [Leonides T. Saguisag, Jr]
+- Initial work on ChromeDriverDownloader class. [Leonides T. Saguisag,
+  Jr]
+- Change Windows behavior to simply copy the driver binary since
+  symlinking requires special privileges and creating a wrapper .cmd
+  script does not work (webdriver expects the .exe to be in the system
+  path). [Leonides T. Saguisag, Jr]
+- Fix bug with .zip file handling; update License section in README to
+  note that the licenses of the WebDriver downloads should be checked
+  prior to download / use. [Leonides T. Saguisag, Jr]
+- Add requirements.txt. [Leonides T. Saguisag, Jr]
+- Initial commit. [Leonides T. Saguisag, Jr]
+
+
