@@ -46,8 +46,7 @@ jobs:
 
 
   - script: |
-      flake8 --output flake8.txt
-      flake8_junit flake8.txt flake8.xml
+      flake8 --exit-zero --output flake8.xml --format=junit-xml
     displayName: 'Running Flake8 Static Analysis'
     continueOnError: true
     condition: eq(variables['os_name'], 'OSX')
@@ -61,10 +60,10 @@ jobs:
     condition: eq(variables['os_name'], 'OSX')
 
   - script: |
-      pylint webdrivermanager/ test/ --exit-zero --output-format=pylint2junit.JunitReporter > pylint.xml
+      pylint webdrivermanager/ test/ --exit-zero --output-format=junit > pylint.xml
     displayName: 'Running Pylint Static Analysis'
     continueOnError: true
-    condition: eq(variables['os_name'], 'OSX')
+    condition: and(eq(variables['os_name'], 'OSX'), ne($(python_version,'2.7')))
 
   - task: PublishTestResults@2
     inputs:
@@ -73,7 +72,7 @@ jobs:
       testResultsTitle: PyLint Results for $(os_name) with Python $(python_version)
       testRunTitle: Python-$(python_version)-$(os_name)-pylint
       publishRunAttachments: true
-    condition: eq(variables['os_name'], 'OSX')
+    condition: and(eq(variables['os_name'], 'OSX'), ne($(python_version,'2.7')))
 
   - script: python setup.py sdist
     displayName: 'Generate sdist files'
