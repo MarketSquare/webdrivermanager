@@ -5,6 +5,7 @@ from os import mkdir
 from os.path import join, isfile, abspath, dirname
 from unittest import TestCase
 from unittest import main as run_tests
+from flaky import flaky
 
 from xmlrunner import XMLTestRunner
 from pyfakefs.fake_filesystem_unittest import TestCase as FakeFSTestCase
@@ -55,11 +56,13 @@ class GeneralWebDriverManagerTests(ExplicitBaseTest):
 class ChromeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
     DRIVER_MANAGER = webdrivermanager.ChromeDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER()
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         self.instance = self.DRIVER_MANAGER()
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
@@ -70,11 +73,13 @@ class ChromeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
 class ChromeDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
     DRIVER_MANAGER = webdrivermanager.ChromeDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         link_path = self.make_link_dir()
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
@@ -86,11 +91,13 @@ class ChromeDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
 class GeckoDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
     DRIVER_MANAGER = webdrivermanager.GeckoDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER()
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         self.instance = self.DRIVER_MANAGER()
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
@@ -101,11 +108,13 @@ class GeckoDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
 class GeckoDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
     DRIVER_MANAGER = webdrivermanager.GeckoDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         link_path = self.make_link_dir()
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
@@ -117,11 +126,13 @@ class GeckoDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
 class OperaChromiumDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
     DRIVER_MANAGER = webdrivermanager.OperaChromiumDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER()
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         self.instance = self.DRIVER_MANAGER()
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
@@ -132,11 +143,13 @@ class OperaChromiumDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
 class OperaChromiumDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
     DRIVER_MANAGER = webdrivermanager.OperaChromiumDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         link_path = self.make_link_dir()
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
@@ -148,11 +161,13 @@ class OperaChromiumDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
 class EdgeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
     DRIVER_MANAGER = webdrivermanager.EdgeDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(os_name='win')
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         self.instance = self.DRIVER_MANAGER(os_name='win')
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
@@ -163,11 +178,13 @@ class EdgeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
 class EdgeDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
     DRIVER_MANAGER = webdrivermanager.EdgeDriverManager
 
+    @flaky
     def test_download(self):
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, os_name='win')
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
 
+    @flaky
     def test_download_and_install(self):
         link_path = self.make_link_dir()
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path, os_name='win')
