@@ -1,7 +1,7 @@
 twine
 flake8
 flake8-awesome; python_version > '3.0'
-flake8-junit-report
+flake8-formatter-junit-xml
 flake8-self; python_version > '3.0'
 flake8-isort
 flake8-eradicate; python_version > '3.0'
@@ -9,8 +9,8 @@ flake8-alfred; python_version > '3.0'
 flake8-tabs; python_version > '3.0'
 flake8-builtins
 flake8-commas
-pylint
-pylint2junit
+pylint>=2.3.0; python_version >= '3.4'
+pylint_junit; python_version >= '3.4'
 python-language-server[all]
 backports.tempfile; python_version < '3.0'
 coverage
