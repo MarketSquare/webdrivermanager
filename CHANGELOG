@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+0.7.4 (2019-03-14)
+------------------
+- Fixed imports. [Dmitry Misharov]
+- Use flaky package go retry tests failed. [Jani Mikkonen]
+  Typically caused by real backends fail to respond.
+- Use better reporters for pylint&flake8. [Jani Mikkonen]
+
+
 0.7.3 (2019-03-13)
 ------------------
 - Show human readable message on connection error. [Jani Mikkonen]
