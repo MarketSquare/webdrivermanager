@@ -2,4 +2,5 @@
 
 from .webdrivermanager import WebDriverManagerBase, ChromeDriverManager, GeckoDriverManager, OperaChromiumDriverManager, EdgeDriverManager, AVAILABLE_DRIVERS
 
-__all__ = ['WebDriverManagerBase', 'ChromeDriverManager', 'GeckoDriverManager', 'OperaChromiumDriverManager', 'EdgeDriverManager', 'AVAILABLE_DRIVERS']
+from .version import get_version
+__all__ = ['WebDriverManagerBase', 'ChromeDriverManager', 'GeckoDriverManager', 'OperaChromiumDriverManager', 'EdgeDriverManager', 'AVAILABLE_DRIVERS', 'get_version']
