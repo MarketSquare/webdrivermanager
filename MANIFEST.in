@@ -1,2 +1,2 @@
-include requirements*.txt CHANGELOG README.rst
+include requirements*.txt CHANGELOG README.rst LICENSE
 exclude dodo.py .gitignore azure-pipelines.yml azure/* test/*
