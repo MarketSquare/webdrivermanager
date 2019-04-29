@@ -284,9 +284,10 @@ class WebDriverManagerBase:
         elif filename.lower().endswith('.exe'):
             shutil.copy2(os.path.join(dl_path, filename), os.path.join(extract_dir, filename))
 
+        actual_driver_filename = None
         for root, _, files in os.walk(extract_dir):
             for curr_file in files:
-                if curr_file == driver_filename:
+                if curr_file in driver_filename:
                     actual_driver_filename = os.path.join(root, curr_file)
                     break
 
@@ -315,7 +316,7 @@ class WebDriverManagerBase:
             return (symlink_src, symlink_target)
         # self.os_name == 'win':
         src_file = actual_driver_filename
-        dest_file = os.path.join(self.link_path, driver_filename)
+        dest_file = os.path.join(self.link_path, os.path.basename(actual_driver_filename))
         try:
             if os.path.isfile(dest_file):
                 LOGGER.info('File %s already exists and will be overwritten.', dest_file)
@@ -480,7 +481,7 @@ class EdgeDriverManager(WebDriverManagerBase):
     """Class for downloading the Edge WebDriver.
     """
     driver_filenames = {
-        'win': 'MicrosoftWebDriver.exe',
+        'win': ['MicrosoftWebDriver.exe', "msedgedriver.exe"],
         'mac': None,
         'linux': None,
     }
@@ -492,6 +493,12 @@ class EdgeDriverManager(WebDriverManagerBase):
             tree = BeautifulSoup(body.text, 'html.parser')
             mstr = 'Release {}'.format(version)
             link_texts = tree.find_all('a', string=re.compile(mstr))
+            if 'index.html' in link_texts[0]['href']:
+                local_bitness = self.bitness
+                if local_bitness == "32":
+                    local_bitness = "86"
+                mstr = "WebDriver for release number {} x{}".format(version, local_bitness)
+                link_texts = tree.find_all('a', {"aria-label": re.compile(mstr)})
             return link_texts[0]['href']
         except Exception:
             return None
@@ -525,7 +532,7 @@ class EdgeDriverManager(WebDriverManagerBase):
 
     def get_download_url(self, version='latest'):
         """
-        Method for getting the download URL for the Google Chome driver binary.
+        Method for getting the download URL for the MSEdge WebDriver binary.
 
         :param version: String representing the version of the web driver binary to download.  For example, "2.39".
                         Default if no version is specified is "latest".  The version string should match the version
