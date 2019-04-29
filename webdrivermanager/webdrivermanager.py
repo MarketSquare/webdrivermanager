@@ -35,6 +35,10 @@ def raise_runtime_error(msg):
     raise RuntimeError(msg)
 
 
+def versiontuple(v):
+    return tuple(map(int, (v.split("."))))
+
+
 class WebDriverManagerBase:
     """Abstract Base Class for the different web driver downloaders
     """
@@ -162,7 +166,7 @@ class WebDriverManagerBase:
         else:
             raise_runtime_error('Error attempting to get version info, got status code: {0}'.format(info.status_code))
 
-        return version
+        return version  # noqa: R504
 
     def _parse_github_api_response(self, version, response):
         filenames = [asset['name'] for asset in response.json()['assets']]
@@ -241,6 +245,7 @@ class WebDriverManagerBase:
             return filename_with_path
 
         raise_runtime_error('Error downloading file {0}, got status code: {1}'.format(filename, data.status_code))
+        return None
 
     def download_and_install(self, version='latest', show_progress_bar=True):
         """
@@ -553,6 +558,77 @@ class EdgeDriverManager(WebDriverManagerBase):
         return (url, os.path.split(urlparse(url).path)[1])
 
 
+class IEDriverManager(WebDriverManagerBase):
+    """Class for downloading Internet Explorer WebDriver.
+    """
+
+    ie_driver_base_url = 'https://selenium-release.storage.googleapis.com'
+    _drivers = None
+    _versions = None
+
+    def _extract_ver(self, s):
+        matcher = r".*\/IEDriverServer_(x64|Win32)_(\d+\.\d+\.\d+)\.zip"
+        ret = re.match(matcher, s)
+        return ret.group(2)
+
+    def _populate_cache(self, url):
+        resp = requests.get(self.ie_driver_base_url)
+        if resp.status_code != 200:
+            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
+
+        soup = BeautifulSoup(resp.text, 'lxml')
+        drivers = filter(lambda entry: 'IEDriverServer_' in entry.contents[0], soup.find_all('key'))
+        self._drivers = list(map(lambda entry: entry.contents[0], drivers))
+        self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))
+
+    def _get_latest_version_number(self):
+        if self._drivers is None or self._versions is None:
+            self._populate_cache(self.ie_driver_base_url)
+        return ".".join(map(str, max(self._versions)))
+
+    driver_filenames = {
+        'win': 'IEDriverServer.exe',
+        'mac': None,
+        'linux': None,
+    }
+
+    def get_download_path(self, version='latest'):
+        if version == 'latest':
+            ver = self._get_latest_version_number()
+        else:
+            ver = version
+        return os.path.join(self.download_root, 'ie', ver)
+
+    def get_download_url(self, version='latest'):
+        """
+        Method for getting the download URL for the Google Chome driver binary.
+
+        :param version: String representing the version of the web driver binary to download.  For example, "2.39".
+                        Default if no version is specified is "latest".  The version string should match the version
+                        as specified on the download page of the webdriver binary.
+        :returns: The download URL for the Internet Explorer driver binary.
+        """
+        if version == 'latest':
+            version = self._get_latest_version_number()
+
+        if not self._drivers:
+            self._populate_cache(self.ie_driver_base_url)
+
+        LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
+        local_osname = self.os_name
+        if self.bitness == "64":
+            local_osname = "x"
+        matcher = r'.*/.*_{0}{1}_{2}'.format(local_osname, self.bitness, version)
+        entry = [entry for entry in self._drivers if re.match(matcher, entry)]
+
+        if not entry:
+            raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
+
+        url = "{0}/{1}".format(self.ie_driver_base_url, entry[0])
+        filename = os.path.basename(entry[0])
+        return (url, filename)
+
+
 AVAILABLE_DRIVERS = {
     'chrome': ChromeDriverManager,
     'firefox': GeckoDriverManager,
@@ -560,4 +636,5 @@ AVAILABLE_DRIVERS = {
     'mozilla': GeckoDriverManager,
     'opera': OperaChromiumDriverManager,
     'edge': EdgeDriverManager,
+    'ie': IEDriverManager,
 }
