@@ -1,9 +1,7 @@
 twine
 flake8
-flake8-awesome; python_version > '3.0'
 flake8-formatter-junit-xml
 flake8-self; python_version > '3.0'
-flake8-isort
 flake8-eradicate; python_version > '3.0'
 flake8-alfred; python_version > '3.0'
 flake8-tabs; python_version > '3.0'

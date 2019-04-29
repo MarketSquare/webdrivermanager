@@ -2,3 +2,4 @@ requests
 tqdm
 BeautifulSoup4
 appdirs
+lxml
