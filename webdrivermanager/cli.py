@@ -58,7 +58,7 @@ def main():
                 if link_path not in os.environ['PATH'].split(os.pathsep):
                     print('WARNING: Path "{0}" is not in the PATH environment variable.'.format(link_path))
             else:
-                print('Linking webdriver skipped'.format(link))
+                print('Linking webdriver skipped')
         else:
             print('Unrecognized browser: "{0}".  Ignoring...'.format(browser))
         print('')

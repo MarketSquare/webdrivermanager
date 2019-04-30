@@ -192,6 +192,7 @@ class EdgeDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
         self.assertTrue(isfile(driver_binary), 'Downloading and saving seems to have failed')
         self.assertTrue(isfile(driver_directory), 'Downloading and saving seems to have failed')
 
+
 class IEDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
     DRIVER_MANAGER = webdrivermanager.IEDriverManager
 
