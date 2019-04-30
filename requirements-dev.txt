@@ -17,5 +17,5 @@ doit>0.29; python_version > '3.0'
 unittest-xml-reporting
 flaky
 pyfakefs==3.5.2
-gitchangelog
+git+https://github.com/rasjani/gitchangelog.git@fix-115
 -r requirements.txt
