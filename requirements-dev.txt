@@ -9,6 +9,7 @@ flake8-builtins
 flake8-commas
 pylint>=2.3.0; python_version >= '3.4'
 pylint_junit; python_version >= '3.4'
+lintly
 python-language-server[all]
 backports.tempfile; python_version < '3.0'
 coverage

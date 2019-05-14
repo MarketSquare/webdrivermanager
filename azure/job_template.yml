@@ -4,6 +4,8 @@ parameters:
 
 jobs:
 - job: ${{ parameters.name }}
+  variables:
+  - group: lintly
   timeoutInMinutes: 60
   cancelTimeoutInMinutes: 25
   pool:
@@ -26,13 +28,13 @@ jobs:
       addToPath: true
       architecture: 'x64'
 
-  - script: |
+  - bash: |
       python -m pip install --upgrade pip
       python -m pip install -r requirements.txt
       python -m pip install -r requirements-dev.txt
     displayName: 'Install requirements'
 
-  - script: python test/test_acceptance.py
+  - bash: python test/test_acceptance.py
     displayName: 'Running Acceptance Tests'
     continueOnError: true
 
@@ -45,12 +47,31 @@ jobs:
       publishRunAttachments: true
 
 
-  - script: |
+  - bash: |
       flake8 --exit-zero --output flake8.xml --format=junit-xml
     displayName: 'Running Flake8 Static Analysis'
     continueOnError: true
     condition: eq(variables['os_name'], 'OSX')
 
+  - bash: |
+      set
+      env
+      flake8 --exit-zero | lintly --format=flake8 --log --post-status --pr $(System.PullRequest.PullRequestNumber) --commit-sha $(Build.SourceVersion) || true
+    displayName: 'Uploading Flake8 results to pull request'
+    continueOnError: true
+    condition: and(eq(variables['os_name'], 'OSX'), eq(variables['Build.Reason'],'PullRequest'))
+    env:
+      LINTLY_API_KEY: $(LINTLY_API_KEY)
+      LINTLY_REPO: $(LINTLY_REPO)
+
+  - bash: |
+      pylint webdrivermanager/ test/ --exit-zero --output-format=json|lintly --format=pylint-json --log --post-status --pr $(System.PullRequest.PullRequestNumber) --commit-sha $(Build.SourceVersion) || true
+    displayName: 'Uploading Pylint results to pull request'
+    continueOnError: true
+    condition: and(and(eq(variables['os_name'], 'OSX'), eq(variables['Build.Reason'],'PullRequest')), ne(variables['python_version'],'2.7'))
+    env:
+      LINTLY_API_KEY: $(LINTLY_API_KEY)
+      LINTLY_REPO: $(LINTLY_REPO)
   - task: PublishTestResults@2
     inputs:
       testRunner: JUnit
@@ -59,7 +80,7 @@ jobs:
       testRunTitle: Python-$(python_version)-$(os_name)-flake8
     condition: eq(variables['os_name'], 'OSX')
 
-  - script: |
+  - bash: |
       pylint webdrivermanager/ test/ --exit-zero --output-format=junit > pylint.xml
     displayName: 'Running Pylint Static Analysis'
     continueOnError: true
@@ -74,5 +95,5 @@ jobs:
       publishRunAttachments: true
     condition: and(eq(variables['os_name'], 'OSX'), ne(variables['python_version'],'2.7'))
 
-  - script: python setup.py sdist
+  - bash: python setup.py sdist
     displayName: 'Generate sdist files'

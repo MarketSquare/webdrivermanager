@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 DOIT_CONFIG = {'default_tasks': []}
 
-
 def task_tests():
     return {
         'actions': ['python test/test_acceptance.py'],
@@ -39,5 +38,5 @@ def task_release():
 
 
 if __name__ == '__main__':
-    import doit
-    doit.run(globals())
+    import   doit
+    doit.run( globals() )
