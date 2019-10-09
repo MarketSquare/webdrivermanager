@@ -22,6 +22,17 @@ try:
 except ImportError:
     from urllib.parse import urlparse  # Python 3.x import
 
+#used to read windows registry and read browser version number - won't load on mac/linux
+#methods using these libraries below first check the os
+try:
+  import win32api
+except:
+  pass
+
+try:
+  import winreg
+except:
+  pass
 
 LOGGER = logging.getLogger(__name__)
 
@@ -396,6 +407,42 @@ class ChromeDriverManager(WebDriverManagerBase):
         'mac': 'chromedriver',
         'linux': 'chromedriver',
     }
+    
+    def get_installed_browser_version(self):
+      """
+      method for reading the version of chrome currently installed.
+      """
+      if self.os_name == 'win':
+
+        Registry = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
+        with winreg.OpenKey(Registry, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe") as key:
+            chrome_path = winreg.QueryValueEx(key, 'Path')[0]
+            if 'chrome.exe' not in chrome_path: chrome_path+='\\chrome.exe'
+
+        exe_info = win32api.GetFileVersionInfo(chrome_path, '\\')
+
+        installed_chrome_version = "%d.%d.%d.%d" % (exe_info['FileVersionMS'] / 65536,exe_info['FileVersionMS'] % 65536, exe_info['FileVersionLS'] / 65536,exe_info['FileVersionLS'] % 65536)
+
+        return installed_chrome_version
+
+      else:
+        raise NotImplementedError("Checking installed Chrome Version is currently only supported on Windows.")
+
+
+    def get_matching_driver_version(self):
+        """
+        method for infering the version of chromedriver compatible with the version of chrome currently installed.
+        """
+
+        chrome_version = self.get_installed_browser_version()
+        chrome_version_major = re.findall(r".*(?=\.)",chrome_version)[0]
+        link = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_" 
+        link += chrome_version_major
+
+        with requests.get(link) as url:
+            matching_driver_version = url.text
+
+        return matching_driver_version    
 
     def get_download_path(self, version='latest'):
         if version == 'latest':
