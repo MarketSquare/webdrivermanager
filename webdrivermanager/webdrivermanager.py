@@ -619,7 +619,7 @@ class IEDriverManager(WebDriverManagerBase):
         if self.bitness == "64":
             local_osname = "x"
         matcher = r'.*/.*_{0}{1}_{2}'.format(local_osname, self.bitness, version)
-            entry = [entry for entry in self._drivers if re.match(matcher, entry)]
+        entry = [entry for entry in self._drivers if re.match(matcher, entry)]
 
         if not entry:
             raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
