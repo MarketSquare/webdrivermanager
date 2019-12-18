@@ -621,7 +621,7 @@ class IEDriverManager(WebDriverManagerBase):
         matcher = r'.*/.*_{0}{1}_{2}'.format(local_osname, self.bitness, version)
         if self.bitness == "32":
             #input the entry for 32 bit version here from https://selenium-release.storage.googleapis.com
-            entry = ['3.150/IEDriverServer_Win32_3.150.1.zip']
+            entry = ['3.150/IEDriverServer_Win32_3.150.0.zip']
         else:
             entry = [entry for entry in self._drivers if re.match(matcher, entry)]
 
