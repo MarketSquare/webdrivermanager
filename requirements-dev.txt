@@ -19,6 +19,6 @@ flaky
 pyfakefs==3.5.2
 git+https://github.com/rasjani/gitchangelog.git@fix-115
 tox
-pyenv
-pyenv-tox
+tox-pyenv
+tox-venv
 -r requirements.txt
