@@ -2,12 +2,18 @@ Changelog
 =========
 
 
+0.8.0 (2020-03-14)
+------------
+- Support for "EdgeChromium" webdrivers. [Jani Mikkonen]
+- Basic code for Internet Explorer. [Jani Mikkonen]
+
+
 0.7.4 (2019-03-14)
 ------------------
 - Fixed imports. [Dmitry Misharov]
 - Use flaky package go retry tests failed. [Jani Mikkonen]
+
   Typically caused by real backends fail to respond.
-- Use better reporters for pylint&flake8. [Jani Mikkonen]
 
 
 0.7.3 (2019-03-13)
