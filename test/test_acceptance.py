@@ -4,6 +4,7 @@ import tarfile  # noqa: E402
 from os import mkdir
 from os.path import join, isfile, abspath, dirname
 from unittest import TestCase
+from unittest import skipIf
 from unittest import main as run_tests
 from flaky import flaky
 
@@ -223,6 +224,45 @@ class IEDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
     def test_download_and_install(self):
         link_path = self.make_link_dir()
         self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path, os_name='win', bitness="64")
+        driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
+        self.assertTrue(isfile(driver_binary), 'Downloading and saving seems to have failed')
+        self.assertTrue(isfile(driver_directory), 'Downloading and saving seems to have failed')
+
+
+class EdgeChromiumDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
+    DRIVER_MANAGER = webdrivermanager.EdgeChromiumDriverManager
+
+    @skipIf(sys.platform.startswith("lin"), "No EdgeChromium for linux")
+    @flaky
+    def test_download(self):
+        self.instance = self.DRIVER_MANAGER()
+        filename = self.instance.download(show_progress_bar=False)
+        self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
+
+    @skipIf(sys.platform.startswith("lin"), "No EdgeChromium for linux")
+    @flaky
+    def test_download_and_install(self):
+        self.instance = self.DRIVER_MANAGER()
+        driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
+        self.assertTrue(isfile(driver_binary), 'Downloading and saving seems to have failed')
+        self.assertTrue(isfile(driver_directory), 'Downloading and saving seems to have failed')
+
+
+class EdgeChromiumDriverManagerTestsWithExplicitLocations(ExplicitBaseTest):
+    DRIVER_MANAGER = webdrivermanager.EdgeChromiumDriverManager
+
+    @skipIf(sys.platform.startswith("lin"), "No EdgeChromium for linux")
+    @flaky
+    def test_download(self):
+        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name)
+        filename = self.instance.download(show_progress_bar=False)
+        self.assertTrue(isfile(filename), 'Downloading and saving seems to have failed')
+
+    @skipIf(sys.platform.startswith("lin"), "No EdgeChromium for linux")
+    @flaky
+    def test_download_and_install(self):
+        link_path = self.make_link_dir()
+        self.instance = self.DRIVER_MANAGER(download_root=self.temp_dir.name, link_path=link_path)
         driver_directory, driver_binary = self.instance.download_and_install(show_progress_bar=False)
         self.assertTrue(isfile(driver_binary), 'Downloading and saving seems to have failed')
         self.assertTrue(isfile(driver_directory), 'Downloading and saving seems to have failed')
