@@ -14,7 +14,8 @@ backports.tempfile; python_version < '3.0'
 coverage
 doit==0.29; python_version < '3.0'
 doit>0.29; python_version > '3.0'
-unittest-xml-reporting
+unittest-xml-reporting; python_version > '3.0'
+unittest-xml-reporting==2.5.2; python_version < '3.0'
 flaky
 pyfakefs==3.5.2
 git+https://github.com/rasjani/gitchangelog.git@fix-115
