@@ -617,6 +617,8 @@ class IEDriverManager(WebDriverManagerBase):
         local_osname = self.os_name
         if self.bitness == "64":
             local_osname = "x"
+        elif self.bitness == "32":
+            local_osname = "Win"
         matcher = r'.*/.*_{0}{1}_{2}'.format(local_osname, self.bitness, version)
         entry = [entry for entry in self._drivers if re.match(matcher, entry)]
 
