@@ -685,7 +685,7 @@ class EdgeChromiumDriverManager(WebDriverManagerBase):
             version = self._get_latest_version_number()
 
         if not self._drivers:
-            self._populate_cache(self.edgechromiun_driver_base_url)
+            self._populate_cache(self.edgechromium_driver_base_url)
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
         local_osname = self.os_name
