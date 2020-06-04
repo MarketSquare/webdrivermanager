@@ -426,15 +426,16 @@ class ChromeDriverManager(WebDriverManagerBase):
         else:
             local_bitness = self.bitness
 
-        matcher = r'{0}/.*{1}{2}.*'.format(version, self.os_name, local_bitness)
+        version = version + '.0' if '.' not in version else version
+        matcher = r'{0}.*/.*{1}{2}.*'.format(version, self.os_name, local_bitness)
 
-        entry = [obj for obj in chrome_driver_objects['items'] if re.match(matcher, obj['name'])]
+        entry = [obj for obj in chrome_driver_objects['items'] if re.search(matcher, obj['name'])]
         if not entry:
             raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
 
         url = entry[0]['mediaLink']
         filename = os.path.basename(entry[0]['name'])
-        return (url, filename)
+        return url, filename
 
 
 class OperaChromiumDriverManager(WebDriverManagerBase):
