@@ -174,7 +174,7 @@ class WebDriverManagerBase:
             raise_runtime_error('Error, unable to find a download for os: {0}'.format(self.os_name))
 
         if len(filename) > 1:
-            filename = [name for name in filenames if self.os_name + self.bitness in name]
+            filename = [name for name in filenames if self.os_name + self.bitness in name and not name.endswith(".asc")]
             if len(filename) != 1:
                 raise_runtime_error('Error, unable to determine correct filename for {0}bit {1}'.format(self.bitness, self.os_name))
 
