@@ -1,190 +1,126 @@
-Changelog
-=========
+* Sun Sep 06 2020 Jani Mikkonen <jani.mikkonen@gmail.com> - 0.9.0
+- fix linux geckodriver download (rev.778b1d1c)
+- Fix support for EdgeChromium (rev.77485c05)
+- - Fix support for IE --bitness 32 (rev.288d96da)
 
+* Sat Mar 14 2020 Jani Mikkonen <jani.mikkonen@gmail.com> - 0.8.0
+- Release 0.8.0 (rev.758af05f)
+- Support for "EdgeChromium" webdrivers. (rev.5f8f8e5d)
+- Fix dev dependencies to support 2.7 python still. (rev.14b37f45)
+- dev deps updated (rev.079a3004)
+- Added support for tox (rev.613cdf37)
+- Use fixed gitchangelog from own fork (rev.a6a174ee)
+- Few lintian fixes (rev.5ac893f2)
+- Bugfix: AVAILABLE_DRIVERS exported incorrectly. (rev.17bf7453)
+- Basic code for Internet Explorer (rev.d069e239)
+- Fixes new edge driver download scheme .. (rev.6670b251)
+- include licese file in package (rev.961060ad)
+- expose get_version (rev.80e43249)
 
-0.8.0 (2020-03-14)
-------------
-- Support for "EdgeChromium" webdrivers. [Jani Mikkonen]
-- Basic code for Internet Explorer. [Jani Mikkonen]
+* Thu Mar 14 2019 Jani Mikkonen <jani.mikkonen@siili.com> - 0.7.4
+- Version bump to 0.7.4 (rev.181143ff)
+- Fixed imports (rev.50f96502)
+- Use flaky package go retry tests failed (rev.8d38107b)
+- Use better reporters for pylint&flake8 (rev.e4bfedc0)
 
+* Wed Mar 13 2019 Jani Mikkonen <jani.mikkonen@siili.com> - 0.7.3
+- Version bump to 0.7.3 (rev.c8a2926a)
+- Show human readable message on connection error (rev.dc856570)
+- Changelog into a separate file (rev.76b3fbf6)
+- Add version information (rev.c9074259)
+- lxml removed from pylintrc (rev.6553c556)
+- Fixed readme (rev.d46c8453)
 
-0.7.4 (2019-03-14)
-------------------
-- Fixed imports. [Dmitry Misharov]
-- Use flaky package go retry tests failed. [Jani Mikkonen]
+* Wed Feb 20 2019 Jani Mikkonen <jani.mikkonen@siili.com> - 0.7.2
+- Version bump to 0.7.2 (rev.c738289e)
+- Bugfix: unhandled exception if windows binary did not exists (rev.c23720f3)
 
-  Typically caused by real backends fail to respond.
+* Tue Feb 19 2019 Jani Mikkonen <jani.mikkonen@siili.com> - 0.7.1
+- version bump (rev.852a3651)
+- Cygwin bug fixes (rev.a3b3297b)
+- Add option to skip link creation (rev.54c4b309)
+- Enable choosing binary bitness (rev.0ac1a7e4)
+- moar lintian fixes (rev.aa40df9c)
+- Bugfix: handle chromedriver bitness across platforms (rev.07940b7d)
+- Fix for python2/3 compatibility (rev.9a4c020e)
+- Fix for requirements (rev.884727ce)
+- Rewrite for get_download_url (rev.9952ec63)
+- Updated requirements-dev (rev.0d70fdae)
+- Updated readme to include edge (rev.f005d076)
+- Pylint fixes (rev.1eed6bce)
+- BeautifulSoup instead of lxml (rev.b0fcdc24)
+- Run flake8 & pylint on ci and generate junits (rev.213136ae)
+- Cygwin support (rev.367d9782)
+- Extended tests and lots of flake8 fixes (rev.9fa5faeb)
+- updated readme (rev.5b7e3b49)
+- Overwrite also binary if it exists (rev.528f703d)
+- option to autodiscover bin location (rev.8ea9817f)
 
+* Tue Jan 29 2019 Jani Mikkonen <jani.mikkonen@siili.com> - 0.6.0
+- Refactor cli portion (rev.ee43c164)
+- Refactor cli portion (rev.dbf95149)
 
-0.7.3 (2019-03-13)
-------------------
-- Show human readable message on connection error. [Jani Mikkonen]
-- Changelog into a separate file. [Jani Mikkonen]
-- Add version information. [Jani Mikkonen]
-- Lxml removed from pylintrc. [Jani Mikkonen]
-- Fixed readme. [Jani Mikkonen]
+* Fri Jan 04 2019 Jani Mikkonen <jani.mikkonen@siili.com> - 0.5.0
+- Export test results to azure (rev.f5fbfc45)
+- Version bump to 0.5.0 (rev.00f66be2)
+- Dont crash with unknown browser string (rev.8118dab2)
+- Basic support for edge (rev.e9af3942)
+- Add possibility to download any os binaries (rev.4a705c0a)
+- Removed dead code (rev.dbd166d6)
 
+* Fri Nov 02 2018 Jani Mikkonen <jani.mikkonen@siili.com> - 0.4.2
+- Release: 0.4.2 (rev.d01a3c35)
+- Corner case for Mac OS X (rev.e4210de7)
+- Dont publish artifacts (rev.c3233343)
+- Fixed fallback github method (rev.f712f36d)
 
-0.7.2 (2019-02-20)
-------------------
-- Bugfix: unhandled exception if windows binary did not exists. [Jani
-  Mikkonen]
+* Wed Oct 31 2018 Jani Mikkonen <jani.mikkonen@siili.com> - 0.4.1
+- version bump (rev.7a2c4f0c)
+- Fix & release (rev.d9cdaf2e)
+- code deduplication (rev.aa5417aa)
+- doit tasks and few dependencies for dev side (rev.37a250b7)
+- publish artifacts task (rev.79d324ae)
+- python 2.7 fix (rev.fc7f4e9e)
+- Removed cruft (rev.d60897eb)
+- Basic pipeline (rev.eba22e39)
+- Fix download_and_install show_progress_bar handling (rev.931a2457)
+- acceptance tests to just prevent things getting broken (rev.e3907313)
+- Bug fixes: (rev.7f560bb8)
+- All Downloaders into Managers (rev.b9f3c0f0)
 
+* Sun Oct 28 2018 Jani Mikkonen <jani.mikkonen@siili.com> - 0.4.0
+- Version bump to 0.4.0 (rev.1db2cb4d)
+- Fixed chrome/opera download in mac (rev.cdd21b92)
+- setup.py pulls requirements.txt (rev.70be9c34)
+- Added lxml dependency (rev.78cee05d)
+- Added a fallback download method for opera chromium driver (rev.03766304)
+- Added a fallback download method for geckodriver (rev.f4a364ea)
 
-0.7.1 (2019-02-19)
-------------------
-- Cygwin bug fixes. [Jani Mikkonen]
+* Sat Oct 27 2018 Jani Mikkonen <jani.mikkonen@siili.com> - 0.3.0
+- Version bump (rev.e368c12f)
+- Updated readme (rev.ee237b21)
+- cache get_download_path calls (rev.3749cc01)
+- Updated readme (rev.09c3569f)
 
-  * mark destination as executable
-  * place executable into bin instead of scripts if running on cygwin
-    python
-- Add option to skip link creation. [Jani Mikkonen]
-
-  Fixes #11
-- Enable choosing binary bitness. [Jani Mikkonen]
-
-  Fixes #12
-- Moar lintian fixes. [Jani Mikkonen]
-- Bugfix: handle chromedriver bitness across platforms. [Jani Mikkonen]
-- Fix for python2/3 compatibility. [Jani Mikkonen]
-- Fix for requirements. [Jani Mikkonen]
-- Rewrite for get_download_url. [Jani Mikkonen]
-
-  Mainly to clean up chromedriver filename but touched others also to
-  return also filename.
-- Updated requirements-dev. [Jani Mikkonen]
-- Updated readme to include edge. [Jani Mikkonen]
-- Pylint fixes. [Jani Mikkonen]
-- BeautifulSoup instead of lxml. [Jani Mikkonen]
-
-  Fixes #9
-- Run flake8 & pylint on ci and generate junits. [Jani Mikkonen]
-- Cygwin support. [Jani Mikkonen]
-- Extended tests and lots of flake8 fixes. [Jani Mikkonen]
-- Updated readme. [Jani Mikkonen]
-- Overwrite also binary if it exists. [Jani Mikkonen]
-
-  Fixes #7
-- Option to autodiscover bin location. [Jani Mikkonen]
-
-
-0.6.0 (2019-01-29)
-------------------
-- Merge branch 'master' of github.com:Omenia/webdrivermanager. [Jani
-  Mikkonen]
-- Refactor cli portion. [Jani Mikkonen]
-- Refactor cli portion. [Jani Mikkonen]
-
-
-0.5.0 (2019-01-04)
-------------------
-- Export test results to azure. [Jani Mikkonen]
-- Dont crash with unknown browser string. [Jani Mikkonen]
-- Basic support for edge. [Jani Mikkonen]
-- Add possibility to download any os binaries. [Jani Mikkonen]
-- Removed dead code. [Jani Mikkonen]
-
-
-0.4.2 (2018-11-02)
-------------------
-- Release: 0.4.2. [Jani Mikkonen]
-- Merge pull request #4 from quarckster/fix_github. [Jani Mikkonen]
-
-  Fixed fallback github method
-- Corner case for Mac OS X. [Dmitrii Misharov]
-- Fixed fallback github method. [Dmitrii Misharov]
-- Dont publish artifacts. [Jani Mikkonen]
-
-
-0.4.1 (2018-10-31)
-------------------
-- Fix & release. [Jani Mikkonen]
-- Code deduplication. [Jani Mikkonen]
-- Doit tasks and few dependencies for dev side. [Jani Mikkonen]
-- Publish artifacts task. [Jani Mikkonen]
-- Python 2.7 fix. [Jani Mikkonen]
-- Removed cruft. [Jani Mikkonen]
-- Basic pipeline. [Jani Mikkonen]
-- Fix download_and_install show_progress_bar handling. [Jani Mikkonen]
-
-  Value was always set to true even if user wanted no output
-- Acceptance tests to just prevent things getting broken. [Jani
-  Mikkonen]
-- Bug fixes: [Jani Mikkonen]
-
-  * Fallback to releases page wasnt implemented for
-    OperaChromiumDriverManager when calling get_download_path
-
-  * Fallback to releases didnt find geckodriver release as the geckodriver
-    in macos does not contain bitness
-- All Downloaders into Managers. [Jani Mikkonen]
-
-
-0.4.0 (2018-10-28)
-------------------
-- Fixed chrome/opera download in mac. [Jani Mikkonen]
-- Setup.py pulls requirements.txt. [Jani Mikkonen]
-- Merge pull request #1 from quarckster/geckodriver_fix. [Jani Mikkonen]
-
-  Fallback download methods
-- Added lxml dependency. [Dmitry Misharov]
-- Added a fallback download method for opera chromium driver. [Dmitry
-  Misharov]
-- Added a fallback download method for geckodriver. [Dmitrii Misharov]
-
-
-0.3.0 (2018-10-27)
-------------------
-- Updated readme. [Jani Mikkonen]
-- Cache get_download_path calls. [Jani Mikkonen]
-- Various cleanups. [Jani Mikkonen]
-
-  * few lint fixes
-   * cache platform.system() calls
-   * code reuse for bitness and os_name
-- Updated readme. [Jani Mikkonen]
-
-
-0.2.0 (2018-10-26)
-------------------
-- Utf8 for the win. [Jani Mikkonen]
-- Support passing dl and linkpath from cli. [Jani Mikkonen]
-- Misc changes. [Jani Mikkonen]
-
-  * some lint fixes
-  * setup.py changes
-  * twine added to requirements
-- Setup changes. [Jani Mikkonen]
-- Dev requirements. [Jani Mikkonen]
-- Fix setup.py. [Jani Mikkonen]
-- If venv is activate, choose install location accordingly. [Jani
-  Mikkonen]
-- Rename the poroject. [Jani Mikkonen]
-- Fix up dependencies, add a few more classifiers to setup. [Leonides T.
-  Saguisag, Jr]
-- Updated README.rst to include info about command line tool,
-  downloaders for Chrome and Chromium-based Opera browsers. [Leonides T.
-  Saguisag, Jr]
-- Finish adding support for downloading a specific WebDriver version to
-  the command-line tool. [Leonides T. Saguisag, Jr]
-- Fix display bug if link_path is not in the PATH environment variable.
-  [Leonides T. Saguisag, Jr]
-- Add command-line support. [Leonides T. Saguisag, Jr]
-- Initial work on OperaChromiumDriverDownloader class. Change download
-  behavior to include webdriver name and version in the download path
-  (needed since the version number is not embedded in the filename for
-  the Opera driver). Fix bug where the executable bit was not getting
-  set on the extracted driver binary. [Leonides T. Saguisag, Jr]
-- Initial work on ChromeDriverDownloader class. [Leonides T. Saguisag,
-  Jr]
-- Change Windows behavior to simply copy the driver binary since
-  symlinking requires special privileges and creating a wrapper .cmd
-  script does not work (webdriver expects the .exe to be in the system
-  path). [Leonides T. Saguisag, Jr]
-- Fix bug with .zip file handling; update License section in README to
-  note that the licenses of the WebDriver downloads should be checked
-  prior to download / use. [Leonides T. Saguisag, Jr]
-- Add requirements.txt. [Leonides T. Saguisag, Jr]
-- Initial commit. [Leonides T. Saguisag, Jr]
+* Fri Oct 26 2018 Jani Mikkonen <jani.mikkonen@siili.com> - 0.2.0
+- utf8 for the win (rev.26d907aa)
+- support passing dl and linkpath from cli (rev.2a89467c)
+- Misc changes (rev.fea92ae7)
+- Setup changes (rev.3dc12714)
+- dev requirements (rev.31015de3)
+- Fix setup.py (rev.a3bdf592)
+- If venv is activate, choose install location accordingly. (rev.66d91386)
+- Rename the poroject (rev.86cd02b5)
+- Fix up dependencies, add a few more classifiers to setup. (rev.88761b17)
+- Updated README.rst to include info about command line tool, downloaders for Chrome and Chromium-based Opera browsers. (rev.d9779a68)
+- Finish adding support for downloading a specific WebDriver version to the command-line tool. (rev.b1a2a6ae)
+- Fix display bug if link_path is not in the PATH environment variable. (rev.fdd785e0)
+- Add command-line support. (rev.b2a9d735)
+- Initial work on OperaChromiumDriverDownloader class. Change download behavior to include webdriver name and version in the download path (needed since the version number is not embedded in the filename for the Opera driver). Fix bug where the executable bit was not getting set on the extracted driver binary. (rev.8f6c34ff)
+- Initial work on ChromeDriverDownloader class. (rev.ab1c088e)
+- Change Windows behavior to simply copy the driver binary since symlinking requires special privileges and creating a wrapper .cmd script does not work (webdriver expects the .exe to be in the system path). (rev.c410d41e)
+- Fix bug with .zip file handling; update License section in README to note that the licenses of the WebDriver downloads should be checked prior to download / use. (rev.c1ba19aa)
+- Add requirements.txt. (rev.f5c35d1f)
+- Initial commit. (rev.9478d458)
 
 
