@@ -1,2 +1,4 @@
-include requirements*.txt CHANGELOG README.rst LICENSE
-exclude dodo.py .gitignore azure-pipelines.yml azure/* test/*
+include requirements.txt CHANGELOG README.rst LICENSE
+exclude tasks.py .gitignore azure-pipelines.yml azure/* test/*
+include versioneer.py
+include webdrivermanager/_version.py

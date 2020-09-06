@@ -4,6 +4,7 @@ from codecs import open
 from os.path import join, abspath, dirname
 
 from setuptools import setup
+import versioneer
 
 CWD = abspath(dirname(__file__))
 PACKAGE_NAME='webdrivermanager'
@@ -14,8 +15,6 @@ with open(join(CWD, 'README.rst'), encoding='utf-8') as f:
 
 # Get version
 CWD = abspath(dirname(__file__))
-VERSION_PATH = join(CWD, PACKAGE_NAME, 'version.py')
-exec(compile(open(VERSION_PATH).read(), VERSION_PATH, 'exec'))
 
 with open(join(CWD, 'requirements.txt'), encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
@@ -44,7 +43,8 @@ Operating System :: POSIX :: Other
 '''.strip().splitlines()
 
 setup(name=PACKAGE_NAME,
-      version=VERSION,
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='Module for facilitating download and deploy of WebDriver binaries.',
       long_description=long_description,
       classifiers=CLASSIFIERS,

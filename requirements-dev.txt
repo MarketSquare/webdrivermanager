@@ -12,14 +12,14 @@ pylint_junit; python_version >= '3.4'
 python-language-server[all]
 backports.tempfile; python_version < '3.0'
 coverage
-doit==0.29; python_version < '3.0'
-doit>0.29; python_version > '3.0'
 unittest-xml-reporting; python_version > '3.0'
 unittest-xml-reporting==2.5.2; python_version < '3.0'
+invoke
 flaky
 pyfakefs==3.5.2
-git+https://github.com/rasjani/gitchangelog.git@fix-115
+gcg
 tox
 tox-pyenv
 tox-venv
+mypy
 -r requirements.txt
