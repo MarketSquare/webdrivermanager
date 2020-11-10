@@ -382,10 +382,13 @@ class ChromeDriverManager(WebDriverManagerBase):
 
     chrome_driver_base_url = 'https://www.googleapis.com/storage/v1/b/chromedriver'
 
-    def _get_latest_version_number(self):
-        resp = requests.get(self.chrome_driver_base_url + '/o/LATEST_RELEASE')
+    def _get_latest_version_number(self, major=""):
+        url = self.chrome_driver_base_url + '/o/LATEST_RELEASE'
+        if major != "":
+            url = url + "_" + major
+        resp = requests.get(url)
         if resp.status_code != 200:
-            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
+            raise_runtime_error('Error, unable to get version number for latest release {1}, got code: {0}'.format(resp.status_code, major))
 
         latest_release = requests.get(resp.json()['mediaLink'])
         return latest_release.text
@@ -414,6 +417,10 @@ class ChromeDriverManager(WebDriverManagerBase):
         """
         if version == 'latest':
             version = self._get_latest_version_number()
+        elif re.match("^[0-9]+$", version) or re.match("^[0-9]+\.[0-9]+\.[0-9]+$", version):
+            major = version
+            version = self._get_latest_version_number(major)
+            LOGGER.debug('Latest version %s found from required major %s', version, major)
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
