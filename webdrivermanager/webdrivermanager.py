@@ -6,6 +6,7 @@ import abc
 import sys
 import stat
 import shutil
+import subprocess
 import logging
 import os.path
 import tarfile
@@ -377,10 +378,44 @@ class GeckoDriverManager(WebDriverManagerBase):
 
 
 class ChromeDriverManager(WebDriverManagerBase):
-    """Class for downloading the Google Chrome WebDriver.
-    """
+    """Class for downloading the Google Chrome WebDriver."""
 
     chrome_driver_base_url = 'https://www.googleapis.com/storage/v1/b/chromedriver'
+
+    driver_filenames = {
+        'win': 'chromedriver.exe',
+        'mac': 'chromedriver',
+        'linux': 'chromedriver',
+    }
+
+    chrome_version_pattern = r'(\d+\.\d+.\d+)(\.\d+)'
+    chrome_version_commands = {
+        'win': [
+            [
+                'reg',
+                'query',
+                r'HKEY_CURRENT_USER\Software\Google\Chrome\BLBeacon',
+                '/v',
+                'version',
+            ],
+            [
+                'reg',
+                'query',
+                r'HKEY_CURRENT_USER\Software\Chromium\BLBeacon',
+                '/v',
+                'version',
+            ],
+        ],
+        'linux': [
+            ['chromium', '--version'],
+            ['chromium-browser', '--version'],
+            ['google-chrome', '--version'],
+        ],
+        'mac': [
+            ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '--version'],
+            ['/Applications/Chromium.app/Contents/MacOS/Chromium', '--version'],
+        ],
+    }
 
     def _get_latest_version_number(self):
         resp = requests.get(self.chrome_driver_base_url + '/o/LATEST_RELEASE')
@@ -390,18 +425,49 @@ class ChromeDriverManager(WebDriverManagerBase):
         latest_release = requests.get(resp.json()['mediaLink'])
         return latest_release.text
 
-    driver_filenames = {
-        'win': 'chromedriver.exe',
-        'mac': 'chromedriver',
-        'linux': 'chromedriver',
-    }
+    def _get_compatible_version_number(self):
+        browser_version = self._get_browser_version()
+        resp = requests.get(self.chrome_driver_base_url + '/o/LATEST_RELEASE_' + browser_version)
+
+        if resp.status_code != 200:
+            raise_runtime_error('Error, unable to get version number for release {0}, got code: {1}'.format(browser_version, resp.status_code))
+
+        latest_release = requests.get(resp.json()['mediaLink'])
+        return latest_release.text
+
+    def _get_browser_version(self):
+        commands = self.chrome_version_commands.get(self.os_name)
+        if not commands:
+            raise NotImplementedError('Unsupported system: %s', self.os_name)
+
+        for cmd in commands:
+            output = self._run_command(cmd)
+            if not output:
+                continue
+
+            version = re.search(self.chrome_version_pattern, output)
+            if not version:
+                continue
+
+            return version.group(1)
+
+        raise_runtime_error('Error, unable to read current browser version')
+
+    def _run_command(self, args):
+        try:
+            output = subprocess.check_output(args)
+            return output.decode().strip()
+        except (FileNotFoundError, subprocess.CalledProcessError) as err:
+            LOGGER.debug('Command failed: %s', err)
+            return None
 
     def get_download_path(self, version='latest'):
         if version == 'latest':
-            ver = self._get_latest_version_number()
-        else:
-            ver = version
-        return os.path.join(self.download_root, 'chrome', ver)
+            version = self._get_latest_version_number()
+        elif version == 'compatible':
+            version = self._get_compatible_version_number()
+
+        return os.path.join(self.download_root, 'chrome', version)
 
     def get_download_url(self, version='latest'):
         """
@@ -414,6 +480,8 @@ class ChromeDriverManager(WebDriverManagerBase):
         """
         if version == 'latest':
             version = self._get_latest_version_number()
+        elif version == 'compatible':
+            version = self._get_compatible_version_number()
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
