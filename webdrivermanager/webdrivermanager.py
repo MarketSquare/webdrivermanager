@@ -650,7 +650,8 @@ class EdgeChromiumDriverManager(WebDriverManagerBase):
 
         soup = BeautifulSoup(resp.text, 'lxml')
 
-        drivers = filter(lambda entry: 'edgedriver_' in entry.contents[0], soup.find_all('url'))
+        arch_matcher = "{}{}".format(self.os_name, self.bitness)
+        drivers = filter(lambda entry: 'edgedriver_{}'.format(arch_matcher) in entry.contents[0], soup.find_all('url'))
         self._drivers = list(map(lambda entry: entry.contents[0], drivers))
         self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))
 
