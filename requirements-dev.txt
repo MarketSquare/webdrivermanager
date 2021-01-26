@@ -16,7 +16,6 @@ unittest-xml-reporting; python_version > '3.0'
 unittest-xml-reporting==2.5.2; python_version < '3.0'
 invoke
 flaky
-pyfakefs==3.5.2
 gcg
 tox
 tox-pyenv

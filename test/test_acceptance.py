@@ -9,7 +9,6 @@ from unittest import main as run_tests
 from flaky import flaky
 
 from xmlrunner import XMLTestRunner
-from pyfakefs.fake_filesystem_unittest import TestCase as FakeFSTestCase
 
 CWD = abspath(dirname(__file__))  # noqa: I003
 sys.path.append(join(CWD, '..'))
@@ -22,13 +21,11 @@ except ImportError:
     from backports.tempfile import TemporaryDirectory   # pylint: disable=import-error
 
 
-class AutomaticBaseTest(FakeFSTestCase):
+class AutomaticBaseTest(TestCase):
     DRIVER_MANAGER = None
 
     def setUp(self):
         self.assertIsNot(self.DRIVER_MANAGER, None, 'DRIVER_MANAGER should not be none')
-        self.setUpPyfakefs(modules_to_reload=[webdrivermanager, tarfile])
-        self.fs.add_real_directory(sys.prefix)
 
 
 class ExplicitBaseTest(TestCase):
