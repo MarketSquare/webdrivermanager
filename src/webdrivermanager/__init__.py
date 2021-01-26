@@ -11,19 +11,29 @@ from .edgechromium import EdgeChromiumDriverManager
 from ._version import get_versions
 
 AVAILABLE_DRIVERS = {
-    'chrome': ChromeDriverManager,
-    'firefox': GeckoDriverManager,
-    'gecko': GeckoDriverManager,
-    'mozilla': GeckoDriverManager,
-    'opera': OperaChromiumDriverManager,
-    'edge': EdgeDriverManager,
-    'edgechromium': EdgeChromiumDriverManager,
-    'ie': IEDriverManager,
+    "chrome": ChromeDriverManager,
+    "firefox": GeckoDriverManager,
+    "gecko": GeckoDriverManager,
+    "mozilla": GeckoDriverManager,
+    "opera": OperaChromiumDriverManager,
+    "edge": EdgeDriverManager,
+    "edgechromium": EdgeChromiumDriverManager,
+    "ie": IEDriverManager,
 }
 
-__all__ = ['WebDriverManagerBase', 'ChromeDriverManager', 'GeckoDriverManager', 'OperaChromiumDriverManager', 'EdgeDriverManager', 'IEDriverManager', 'EdgeChromiumDriverManager', 'get_version', 'AVAILABLE_DRIVERS']
+__all__ = [
+    "WebDriverManagerBase",
+    "ChromeDriverManager",
+    "GeckoDriverManager",
+    "OperaChromiumDriverManager",
+    "EdgeDriverManager",
+    "IEDriverManager",
+    "EdgeChromiumDriverManager",
+    "get_version",
+    "AVAILABLE_DRIVERS",
+]
 
-__version__ = get_versions()['version']
+__version__ = get_versions()["version"]
 
 
 def get_version():
