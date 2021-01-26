@@ -10,16 +10,15 @@ flake8-commas
 pylint>=2.3.0; python_version >= '3.4'
 pylint_junit; python_version >= '3.4'
 python-language-server[all]
-backports.tempfile; python_version < '3.0'
 coverage
 unittest-xml-reporting; python_version > '3.0'
 unittest-xml-reporting==2.5.2; python_version < '3.0'
 invoke
 flaky
-pyfakefs==3.5.2
 gcg
 tox
 tox-pyenv
 tox-venv
 mypy; python_version > '3.5'
+black
 -r requirements.txt

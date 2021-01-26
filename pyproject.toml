@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 130
+target-version = ['py37']
+exclude = '''
+(
+  /(
+    | \.git
+    | \venv
+    | \.venv
+  )/ | versioneer.py | _version.py
+)
+'''

@@ -6,7 +6,7 @@ import os
 import shutil
 
 
-QUOTE = "\"" if os.name == "nt" else "'"
+QUOTE = '"' if os.name == "nt" else "'"
 
 CHANGELOG = "CHANGELOG"
 filters = ["poc", "new release", "wip", "cleanup", "!nocl"]
@@ -30,6 +30,7 @@ assert Path.cwd() == Path(__file__).parent
 def build(ctx):
     """Generates dist tar ball"""
     ctx.run("python setup.py sdist")
+
 
 @task
 def flake(ctx):
