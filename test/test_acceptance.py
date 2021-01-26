@@ -7,15 +7,13 @@ from unittest import TestCase
 from unittest import skipUnless
 from unittest import main as run_tests
 from flaky import flaky
-
+from pathlib import Path
 from xmlrunner import XMLTestRunner
-
-CWD = abspath(dirname(__file__))  # noqa: I003
-sys.path.append(join(CWD, ".."))
-import webdrivermanager  # noqa: E402 I001
-
-
 from tempfile import TemporaryDirectory
+
+src_root = Path(__file__).absolute().parent.parent / "src"
+sys.path.append(str(src_root))
+import webdrivermanager  # noqa: E402 I001
 
 
 class AutomaticBaseTest(TestCase):
