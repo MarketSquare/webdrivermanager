@@ -6,14 +6,8 @@ import os.path
 import argparse
 from requests import ConnectionError
 
-try:
-    from ._version import get_versions
-except ImportError:
-    from _version import get_versions
-try:
-    from .webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
-except ImportError:
-    from webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
+from ._version import get_versions
+from webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
 
 
 OS_NAMES = ['mac', 'win', 'linux']

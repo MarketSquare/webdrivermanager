@@ -52,12 +52,15 @@ setup(name=PACKAGE_NAME,
       author='Jani Mikkonen',
       author_email='jani.mikkonen@gmail.com',
       license='MIT',
-      packages=['webdrivermanager'],
+      packages=[PACKAGE_NAME],
+      package_dir={"": "src"},
       install_requires=REQUIREMENTS,
       include_package_data=True,
+      platforms="any",
+      keywords="webdriver chromedriver geckodriver edgechromiumdriver selenium",
       zip_safe=False,
       entry_points={
           'console_scripts': [
-              'webdrivermanager = webdrivermanager.cli:main',
+              'webdrivermanager = webdrivermanager.__main__:main',
           ],
       })
