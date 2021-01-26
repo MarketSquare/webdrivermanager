@@ -271,7 +271,7 @@ class WebDriverManagerBase:
             with zipfile.ZipFile(dl_path / filename, mode="r") as driver_zipfile:
                 driver_zipfile.extractall(extract_dir)
                 # TODO: Get filenames and log debug
-        elif archive_type == 2:
+        elif archive_type == 3:
             shutil.copy2(dl_path / filename, extract_dir / filename)
 
         actual_driver_filename = None
