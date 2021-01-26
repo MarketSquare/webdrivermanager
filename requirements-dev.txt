@@ -7,8 +7,6 @@ flake8-alfred; python_version > '3.0'
 flake8-tabs; python_version > '3.0'
 flake8-builtins
 flake8-commas
-pylint>=2.3.0; python_version >= '3.4'
-pylint_junit; python_version >= '3.4'
 python-language-server[all]
 coverage
 unittest-xml-reporting; python_version > '3.0'

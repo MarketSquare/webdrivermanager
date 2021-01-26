@@ -1,13 +1,16 @@
 jobs:
 - template: azure/job_template.yml
   parameters:
-    name: 'OSX'
+    name: 'OSX_37'
     vmImage: 'macOS-10.14'
+    python_version: '3.7'
 - template: azure/job_template.yml
   parameters:
-    name: 'Windows'
+    name: 'Windows_39'
     vmImage: 'VS2017-Win2016'
+    python_version: '3.9'
 - template: azure/job_template.yml
   parameters:
-    name: 'Linux'
+    name: 'Linux_38'
     vmImage: 'ubuntu-16.04'
+    python_version: '3.8'
