@@ -1,4 +1,3 @@
-# pylint: disable=attribute-defined-outside-init
 import sys
 import tarfile  # noqa: E402
 from os import mkdir

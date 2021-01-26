@@ -186,7 +186,7 @@ class WebDriverManagerBase:
 
         return None
 
-    def download(self, version="latest", show_progress_bar=True):  # pylint: disable=inconsistent-return-statements
+    def download(self, version="latest", show_progress_bar=True):
         """
         Method for downloading a web driver binary.
 
