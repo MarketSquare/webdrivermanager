@@ -17,6 +17,7 @@ gcg
 tox
 tox-pyenv
 tox-venv
+pytest
 mypy; python_version > '3.5'
 black
 -r requirements.txt
