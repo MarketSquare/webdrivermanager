@@ -28,7 +28,7 @@ jobs:
       python -m pip install -r requirements-dev.txt
     displayName: 'Install requirements'
 
-  - script: python test/test_acceptance.py
+  - script: pytest test/acceptance --junitxml acceptance_tests.xml
     displayName: 'Running Acceptance Tests'
     continueOnError: true
 
