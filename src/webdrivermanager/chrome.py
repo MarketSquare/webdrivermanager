@@ -4,7 +4,7 @@ import re
 import subprocess
 from pathlib import Path
 from .base import WebDriverManagerBase
-from .misc import LOGGER, raise_runtime_error
+from .misc import LOGGER, raise_runtime_error, get_output
 
 
 class ChromeDriverManager(WebDriverManagerBase):
@@ -21,20 +21,8 @@ class ChromeDriverManager(WebDriverManagerBase):
     chrome_version_pattern = r"(\d+\.\d+.\d+)(\.\d+)"
     chrome_version_commands = {
         "win": [
-            [
-                "reg",
-                "query",
-                r"HKEY_CURRENT_USER\Software\Google\Chrome\BLBeacon",
-                "/v",
-                "version",
-            ],
-            [
-                "reg",
-                "query",
-                r"HKEY_CURRENT_USER\Software\Chromium\BLBeacon",
-                "/v",
-                "version",
-            ],
+            ["reg", "query", r"HKEY_CURRENT_USER\Software\Google\Chrome\BLBeacon", "/v", "version"],
+            ["reg", "query", r"HKEY_CURRENT_USER\Software\Chromium\BLBeacon", "/v", "version"],
         ],
         "linux": [
             ["chromium", "--version"],
@@ -47,58 +35,8 @@ class ChromeDriverManager(WebDriverManagerBase):
         ],
     }
 
-    def _get_latest_version_number(self):
-        resp = requests.get(self.chrome_driver_base_url + "/o/LATEST_RELEASE")
-        if resp.status_code != 200:
-            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
-
-        latest_release = requests.get(resp.json()["mediaLink"])
-        return latest_release.text
-
-    def _get_compatible_version_number(self):
-        browser_version = self._get_browser_version()
-        resp = requests.get(self.chrome_driver_base_url + "/o/LATEST_RELEASE_" + browser_version)
-
-        if resp.status_code != 200:
-            raise_runtime_error(
-                f"Error, unable to get version number for release {browser_version}, got code: {resp.status_code}"
-            )
-
-        latest_release = requests.get(resp.json()["mediaLink"])
-        return latest_release.text
-
-    def _get_browser_version(self):
-        commands = self.chrome_version_commands.get(self.os_name)
-        if not commands:
-            raise NotImplementedError("Unsupported system: %s", self.os_name)
-
-        for cmd in commands:
-            output = self._run_command(cmd)
-            if not output:
-                continue
-
-            version = re.search(self.chrome_version_pattern, output)
-            if not version:
-                continue
-
-            return version.group(1)
-
-        raise_runtime_error("Error, unable to read current browser version")
-
-    def _run_command(self, args):
-        try:
-            output = subprocess.check_output(args)
-            return output.decode().strip()
-        except (FileNotFoundError, subprocess.CalledProcessError) as err:
-            LOGGER.debug("Command failed: %s", err)
-            return None
-
     def get_download_path(self, version="latest"):
-        if version == "latest":
-            version = self._get_latest_version_number()
-        elif version == "compatible":
-            version = self._get_compatible_version_number()
-
+        version = self._parse_version(version)
         return self.download_root / "chrome" / version
 
     def get_download_url(self, version="latest"):
@@ -110,11 +48,7 @@ class ChromeDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Google Chrome driver binary.
         """
-        if version == "latest":
-            version = self._get_latest_version_number()
-        elif version == "compatible":
-            version = self._get_compatible_version_number()
-
+        version = self._parse_version(version)
         LOGGER.debug("Detected OS: %sbit %s", self.bitness, self.os_name)
 
         chrome_driver_objects = requests.get(self.chrome_driver_base_url + "/o").json()
@@ -135,3 +69,41 @@ class ChromeDriverManager(WebDriverManagerBase):
         url = entry[0]["mediaLink"]
         filename = Path(entry[0]["name"]).name
         return (url, filename)
+
+    def get_latest_version(self):
+        resp = requests.get(self.chrome_driver_base_url + "/o/LATEST_RELEASE")
+        if resp.status_code != 200:
+            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
+
+        latest_release = requests.get(resp.json()["mediaLink"])
+        return latest_release.text
+
+    def get_compatible_version(self):
+        browser_version = self._get_browser_version()
+        resp = requests.get(self.chrome_driver_base_url + "/o/LATEST_RELEASE_" + browser_version)
+
+        if resp.status_code != 200:
+            raise_runtime_error(
+                f"Error, unable to get version number for release {browser_version}, got code: {resp.status_code}"
+            )
+
+        latest_release = requests.get(resp.json()["mediaLink"])
+        return latest_release.text
+
+    def _get_browser_version(self):
+        commands = self.chrome_version_commands.get(self.os_name)
+        if not commands:
+            raise NotImplementedError("Unsupported system: %s", self.os_name)
+
+        for cmd in commands:
+            output = get_output(cmd)
+            if not output:
+                continue
+
+            version = re.search(self.chrome_version_pattern, output)
+            if not version:
+                continue
+
+            return version.group(1)
+
+        raise_runtime_error("Error, unable to read current browser version")

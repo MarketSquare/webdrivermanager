@@ -71,7 +71,7 @@ def main():
         if ":" in browser:
             browser, version = browser.split(":")
         else:
-            version = "latest"
+            version = "compatible"
 
         if browser.lower() in DOWNLOADERS.keys():
             print(f'Downloading WebDriver for browser: "{browser}"')

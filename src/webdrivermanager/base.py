@@ -127,8 +127,34 @@ class WebDriverManagerBase:
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def get_latest_version(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_compatible_version(self):
+        raise NotImplementedError
+
     def get_driver_filename(self):
         return self.driver_filenames[self.os_name]
+
+    def _parse_version(self, version):
+        method = version.strip().lower()
+
+        # Attempt to match webdriver to current browser version, if supported
+        if method == "compatible":
+            try:
+                return self.get_compatible_version()
+            except NotImplementedError:
+                pass
+            except Exception as exc:
+                LOGGER.warning("Failed to parse compatible version: %s", exc)
+            method = "latest"
+
+        if method == "latest":
+            return self.get_latest_version()
+        else:
+            return version
 
     def _get_latest_version_with_github_page_fallback(self, url, fallback_url, required_version):
         version = None
