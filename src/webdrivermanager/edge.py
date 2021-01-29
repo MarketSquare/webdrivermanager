@@ -19,6 +19,41 @@ class EdgeDriverManager(WebDriverManagerBase):
 
     edge_driver_base_url = "https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/"
 
+    def get_download_path(self, version="latest"):
+        version = self._parse_version(version)
+        return self.download_root / "edge" / version
+
+    def get_download_url(self, version="latest"):
+        """
+        Method for getting the download URL for the MSEdge WebDriver binary.
+
+        :param version: String representing the version of the web driver binary to download.  For example, "2.39".
+                        Default if no version is specified is "latest".  The version string should match the version
+                        as specified on the download page of the webdriver binary.
+        :returns: The download URL for the Google Chrome driver binary.
+        """
+        version = self._parse_version(version)
+        LOGGER.debug("Detected OS: %sbit %s", self.bitness, self.os_name)
+
+        # TODO: handle error 500 by sleep & retry here
+        resp = requests.get(self.edge_driver_base_url)
+        if resp.status_code != 200:
+            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
+
+        url = self._get_download_url(resp, version)
+        return (url, os.path.split(urlparse(url).path)[1])
+
+    def get_latest_version(self):
+        # TODO: handle error 500 by sleep & retry here
+        resp = requests.get(self.edge_driver_base_url)
+        if resp.status_code != 200:
+            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
+
+        return self._get_version_number(resp)
+
+    def get_compatible_version(self):
+        raise NotImplementedError
+
     def _get_download_url(self, body, version):
         try:
             tree = BeautifulSoup(body.text, "html.parser")
@@ -45,40 +80,3 @@ class EdgeDriverManager(WebDriverManagerBase):
             return None
         except Exception:
             return None
-
-    def _get_latest_version_number(self):
-        # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url)
-        if resp.status_code != 200:
-            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
-
-        return self._get_version_number(resp)
-
-    def get_download_path(self, version="latest"):
-        if version == "latest":
-            ver = self._get_latest_version_number()
-        else:
-            ver = version
-        return self.download_root / "edge" / ver
-
-    def get_download_url(self, version="latest"):
-        """
-        Method for getting the download URL for the MSEdge WebDriver binary.
-
-        :param version: String representing the version of the web driver binary to download.  For example, "2.39".
-                        Default if no version is specified is "latest".  The version string should match the version
-                        as specified on the download page of the webdriver binary.
-        :returns: The download URL for the Google Chrome driver binary.
-        """
-        if version == "latest":
-            version = self._get_latest_version_number()
-
-        LOGGER.debug("Detected OS: %sbit %s", self.bitness, self.os_name)
-
-        # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url)
-        if resp.status_code != 200:
-            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
-
-        url = self._get_download_url(resp, version)
-        return (url, os.path.split(urlparse(url).path)[1])

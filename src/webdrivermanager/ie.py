@@ -14,26 +14,6 @@ class IEDriverManager(WebDriverManagerBase):
     _drivers = None
     _versions = None
 
-    def _extract_ver(self, s):
-        matcher = r".*\/IEDriverServer_(x64|Win32)_(\d+\.\d+\.\d+)\.zip"
-        ret = re.match(matcher, s)
-        return ret.group(2)
-
-    def _populate_cache(self, url):
-        resp = requests.get(url)
-        if resp.status_code != 200:
-            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
-
-        soup = BeautifulSoup(resp.text, "lxml")
-        drivers = filter(lambda entry: "IEDriverServer_" in entry.contents[0], soup.find_all("key"))
-        self._drivers = list(map(lambda entry: entry.contents[0], drivers))
-        self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))
-
-    def _get_latest_version_number(self):
-        if self._drivers is None or self._versions is None:
-            self._populate_cache(self.ie_driver_base_url)
-        return ".".join(map(str, max(self._versions)))
-
     driver_filenames = {
         "win": "IEDriverServer.exe",
         "mac": None,
@@ -41,11 +21,8 @@ class IEDriverManager(WebDriverManagerBase):
     }
 
     def get_download_path(self, version="latest"):
-        if version == "latest":
-            ver = self._get_latest_version_number()
-        else:
-            ver = version
-        return self.download_root / "ie" / ver
+        version = self._parse_version(version)
+        return self.download_root / "ie" / version
 
     def get_download_url(self, version="latest"):
         """
@@ -56,8 +33,7 @@ class IEDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Internet Explorer driver binary.
         """
-        if version == "latest":
-            version = self._get_latest_version_number()
+        version = self._parse_version(version)
 
         if not self._drivers:
             self._populate_cache(self.ie_driver_base_url)
@@ -77,3 +53,26 @@ class IEDriverManager(WebDriverManagerBase):
         url = f"{self.ie_driver_base_url}/{entry[0]}"
         filename = Path(entry[0]).name
         return (url, filename)
+
+    def get_latest_version(self):
+        if self._drivers is None or self._versions is None:
+            self._populate_cache(self.ie_driver_base_url)
+        return ".".join(map(str, max(self._versions)))
+
+    def get_compatible_version(self):
+        raise NotImplementedError
+
+    def _extract_ver(self, s):
+        matcher = r".*\/IEDriverServer_(x64|Win32)_(\d+\.\d+\.\d+)\.zip"
+        ret = re.match(matcher, s)
+        return ret.group(2)
+
+    def _populate_cache(self, url):
+        resp = requests.get(url)
+        if resp.status_code != 200:
+            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
+
+        soup = BeautifulSoup(resp.text, "lxml")
+        drivers = filter(lambda entry: "IEDriverServer_" in entry.contents[0], soup.find_all("key"))
+        self._drivers = list(map(lambda entry: entry.contents[0], drivers))
+        self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))

@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import sys
 
 LOGGER = logging.getLogger(__name__)
@@ -15,3 +16,12 @@ def raise_runtime_error(msg):
 
 def versiontuple(v):
     return tuple(map(int, (v.split("."))))
+
+
+def get_output(cmd, **kwargs):
+    try:
+        output = subprocess.check_output(cmd, **kwargs)
+        return output.decode().strip()
+    except (FileNotFoundError, subprocess.CalledProcessError) as err:
+        LOGGER.debug("Command failed: %s", err)
+        return None

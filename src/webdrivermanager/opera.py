@@ -18,13 +18,8 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
     }
 
     def get_download_path(self, version="latest"):
-        if version == "latest":
-            ver = self._get_latest_version_with_github_page_fallback(
-                self.opera_chromium_driver_releases_url, self.fallback_url, version
-            )
-        else:
-            ver = version
-        return self.download_root / "operachromium" / ver
+        version = self._parse_version(version)
+        return self.download_root / "operachromium" / version
 
     def get_download_url(self, version="latest"):
         """
@@ -35,15 +30,11 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Opera Chromium driver binary.
         """
-        if version == "latest":
-            # TODO: convert to fstrings
-            opera_chromium_driver_version_release_url = self.opera_chromium_driver_releases_url + version
-        else:
-            # TODO: convert to fstrings
-            opera_chromium_driver_version_release_url = self.opera_chromium_driver_releases_url + "tags/" + version
+        version = self._parse_version(version)
+        releases_url = f"{self.opera_chromium_driver_releases_url}tags/{version}"
 
-        LOGGER.debug("Attempting to access URL: %s", opera_chromium_driver_version_release_url)
-        response = requests.get(opera_chromium_driver_version_release_url)
+        LOGGER.debug("Attempting to access URL: %s", releases_url)
+        response = requests.get(releases_url)
         if response.ok:
             url = self._parse_github_api_response(version, response)
         elif response.status_code == 403:
@@ -54,3 +45,11 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
             )
 
         return (url, os.path.split(urlparse(url).path)[1])
+
+    def get_latest_version(self):
+        return self._get_latest_version_with_github_page_fallback(
+            self.opera_chromium_driver_releases_url, self.fallback_url, "latest"
+        )
+
+    def get_compatible_version(self):
+        raise NotImplementedError
