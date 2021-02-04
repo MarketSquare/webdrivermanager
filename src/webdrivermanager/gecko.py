@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import os
+import re
 from urllib.parse import urlparse
 from .base import WebDriverManagerBase
 from .misc import LOGGER, raise_runtime_error, get_output
@@ -18,6 +19,7 @@ class GeckoDriverManager(WebDriverManagerBase):
         "linux": "geckodriver",
     }
 
+    firefox_version_pattern = r"(\d+)(\.\d+)"
     firefox_version_commands = {
         "win": ["reg", "query", r"HKEY_CURRENT_USER\Software\Mozilla\Mozilla Firefox", "/v", "CurrentVersion"],
         "linux": ["firefox", "--version"],
@@ -77,7 +79,8 @@ class GeckoDriverManager(WebDriverManagerBase):
         if not output:
             raise_runtime_error("Error, unable to read current browser version")
 
-        version = output.split()[-1]
-        major = int(version.split(".")[0])
+        version = re.search(self.firefox_version_pattern, output)
+        if not version:
+            raise_runtime_error("Error, browser version does not match known pattern")
 
-        return major
+        return int(version.group(1))

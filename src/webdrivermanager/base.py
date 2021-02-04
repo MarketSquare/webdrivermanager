@@ -148,7 +148,7 @@ class WebDriverManagerBase:
             except NotImplementedError:
                 pass
             except Exception as exc:
-                LOGGER.info("Failed to parse compatible version: %s", exc)
+                LOGGER.warning("Failed to parse compatible version: %s", exc)
             method = "latest"
 
         if method == "latest":
