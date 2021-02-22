@@ -1,3 +1,10 @@
+* Mon Feb 22 2021 Jani Mikkonen <jani.mikkonen@gmail.com> - 0.10.0
+- Add baseclass methods for parsing latest and compatible versions (rev.9d37e559)
+- Code restructure and refactorings (rev.ded7c464)
+- Add option for 'compatible' chromedriver version (rev.537edf64)
+- Version detection/download on EdgeChromium fixed. (rev.72c9955f)
+- Remove 2.7 support from CI (rev.c612eefe)
+
 * Sun Sep 06 2020 Jani Mikkonen <jani.mikkonen@gmail.com> - 0.9.0
 - fix linux geckodriver download (rev.778b1d1c)
 - Fix support for EdgeChromium (rev.77485c05)
