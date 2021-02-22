@@ -50,7 +50,7 @@ class GeckoDriverManager(WebDriverManagerBase):
             url = self._parse_github_page(version)
         else:
             raise_runtime_error(
-                f"Error, unable to get info for gecko driver {version} release. Status code: {response.status_code}. Error message: {response.text}"
+                f"Error, unable to get info for gecko driver {version} release. Status code: {response.status_code}. Error message: {response.text}"  # NOQA: C812
             )
 
         return (url, os.path.split(urlparse(url).path)[1])

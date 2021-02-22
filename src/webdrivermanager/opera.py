@@ -53,7 +53,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
 
     def get_latest_version(self):
         return self._get_latest_version_with_github_page_fallback(
-            self.opera_chromium_driver_releases_url, self.fallback_url, "latest"
+            self.opera_chromium_driver_releases_url, self.fallback_url, "latest"  # NOQA: C812
         )
 
     def get_compatible_version(self):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
 import re
-import subprocess
 from pathlib import Path
 from .base import WebDriverManagerBase
 from .misc import LOGGER, raise_runtime_error, get_output
@@ -84,7 +83,7 @@ class ChromeDriverManager(WebDriverManagerBase):
 
         if resp.status_code != 200:
             raise_runtime_error(
-                f"Error, unable to get version number for release {browser_version}, got code: {resp.status_code}"
+                f"Error, unable to get version number for release {browser_version}, got code: {resp.status_code}"  # NOQA: C812
             )
 
         latest_release = requests.get(resp.json()["mediaLink"])
