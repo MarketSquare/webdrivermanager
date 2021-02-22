@@ -20,7 +20,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
     def get_download_path(self, version="latest"):
         if version == "latest":
             ver = self._get_latest_version_with_github_page_fallback(
-                self.opera_chromium_driver_releases_url, self.fallback_url, version
+                self.opera_chromium_driver_releases_url, self.fallback_url, version  # NOQA: C812
             )
         else:
             ver = version
@@ -50,7 +50,7 @@ class OperaChromiumDriverManager(WebDriverManagerBase):
             url = self._parse_github_page(version)
         else:
             raise_runtime_error(
-                f"Error, unable to get info for opera chromium driver {version} release. Status code: {response.status_code}. Error message: {response.text}"
+                f"Error, unable to get info for opera chromium driver {version} release. Status code: {response.status_code}. Error message: {response.text}"  # NOQA: C812
             )
 
         return (url, os.path.split(urlparse(url).path)[1])
