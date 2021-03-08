@@ -64,13 +64,26 @@ class EdgeChromiumDriverManager(WebDriverManagerBase):
         return ret.group(1)
 
     def _populate_cache(self, url):
-        resp = requests.get(url)
-        if resp.status_code != 200:
-            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
+        urls = []
+        at_the_end = False
+        pagination = ""
+        while not at_the_end:
+            local_url = f"{url}{pagination}"
+            print(f"URL {local_url}")
+            resp = requests.get(local_url)
+            if resp.status_code != 200:
+                raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
 
-        soup = BeautifulSoup(resp.text, "lxml")
+            soup = BeautifulSoup(resp.text, "lxml")
+            urls.extend(soup.find_all("url"))
+
+            next_marker = soup.find("nextmarker").text
+            if next_marker:
+                pagination = f"&marker={next_marker}"
+            else:
+                at_the_end = True
 
         arch_matcher = f"{self.os_name}{self.bitness}"
-        drivers = filter(lambda entry: f"edgedriver_{arch_matcher}" in entry.contents[0], soup.find_all("url"))
+        drivers = filter(lambda entry: f"edgedriver_{arch_matcher}" in entry.contents[0], urls)
         self._drivers = list(map(lambda entry: entry.contents[0], drivers))
         self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))
