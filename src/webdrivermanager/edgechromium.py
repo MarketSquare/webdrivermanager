@@ -18,7 +18,7 @@ class EdgeChromiumDriverManager(WebDriverManagerBase):
     driver_filenames = {
         "win": "msedgedriver.exe",
         "mac": "msedgedriver",
-        "linux": None,
+        "linux": "msedgedriver",
     }
 
     def get_download_path(self, version="latest"):
