@@ -15,7 +15,7 @@ BITNESS = ["32", "64"]
 
 def parse_command_line():
     parser = argparse.ArgumentParser(
-        description="Tool for downloading and installing WebDriver binaries. Version: {get_versions()['version']}",
+        description=f"Tool for downloading and installing WebDriver binaries. Version: {get_versions()['version']}",
     )
     parser.add_argument(
         "browser",
