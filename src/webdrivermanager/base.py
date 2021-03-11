@@ -332,9 +332,10 @@ class WebDriverManagerBase:
             try:
                 symlink_stat = os.stat(symlink_src)
                 os.chmod(symlink_src, symlink_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-            except:
-                pass
+            except Exception:
                 # TODO: add error handling
+                pass
+
             return (symlink_src, symlink_target)
 
         # self.os_name == 'win':
@@ -350,8 +351,8 @@ class WebDriverManagerBase:
         try:
             dest_stat = os.stat(dest_file)
             os.chmod(dest_file, dest_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-        except:
-            pass
+        except Exception:
             # TODO: add error handling
+            pass
 
         return (src_file, dest_file)
