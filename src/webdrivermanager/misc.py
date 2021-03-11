@@ -20,7 +20,7 @@ def versiontuple(v):
 
 def get_output(cmd, **kwargs):
     try:
-        output = subprocess.check_output(cmd, **kwargs)
+        output = subprocess.check_output(cmd, **kwargs, stderr=subprocess.STDOUT)
         return output.decode().strip()
     except (FileNotFoundError, subprocess.CalledProcessError) as err:
         LOGGER.debug("Command failed: %s", err)
