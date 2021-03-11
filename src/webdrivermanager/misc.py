@@ -22,6 +22,10 @@ def get_output(cmd, **kwargs):
     try:
         output = subprocess.check_output(cmd, **kwargs, stderr=subprocess.STDOUT)
         return output.decode().strip()
-    except (FileNotFoundError, subprocess.CalledProcessError) as err:
-        LOGGER.debug("Command failed: %s", err)
+    except subprocess.CalledProcessError as err:
+        error = err.output.decode().strip()
+        LOGGER.debug("Command failed:\n%s", error)
+        return None
+    except FileNotFoundError as err:
+        LOGGER.debug("Command not found: %s", err)
         return None
