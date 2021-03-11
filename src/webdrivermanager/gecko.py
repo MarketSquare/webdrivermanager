@@ -77,7 +77,7 @@ class GeckoDriverManager(WebDriverManagerBase):
 
         output = get_output(cmd)
         if not output:
-            raise_runtime_error("Error, unable to read current browser version")
+            raise RuntimeError("Unable to read current browser version")
 
         version = re.search(self.firefox_version_pattern, output)
         if not version:

@@ -105,4 +105,4 @@ class ChromeDriverManager(WebDriverManagerBase):
 
             return version.group(1)
 
-        raise_runtime_error("Error, unable to read current browser version")
+        raise RuntimeError("Unable to read current browser version")
