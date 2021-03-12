@@ -7,6 +7,7 @@ from requests import ConnectionError
 
 from ._version import get_versions
 from webdrivermanager import AVAILABLE_DRIVERS as DOWNLOADERS
+from .misc import LOGGER, LOG_LEVELS
 
 
 OS_NAMES = ["mac", "win", "linux"]
@@ -61,11 +62,13 @@ def parse_command_line():
         help=f"Overrides bitness detection with given value. Values: {' '.join(BITNESS)}",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {get_versions()['version']}")
+    parser.add_argument("--loglevel", default="info", dest="loglevel", choices=list(LOG_LEVELS.keys())[1:], help="Log Level")
     return parser.parse_args()
 
 
 def main():
     args = parse_command_line()
+    LOGGER.setLevel(LOG_LEVELS[args.loglevel])
     for browser in args.browser:
 
         if ":" in browser:
