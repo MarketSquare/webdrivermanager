@@ -3,6 +3,14 @@ import subprocess
 import sys
 
 LOGGER = logging.getLogger(__name__)
+LOG_LEVELS = {
+    "notset": logging.NOTSET,
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
+}
 
 
 def _inside_virtualenv():
