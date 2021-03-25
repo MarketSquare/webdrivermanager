@@ -19,7 +19,7 @@ def filter_entries(filename):
 
     with open(filename, "w") as new_file:
         for line in buffer:
-            if not any(bad_word in line.lower() for bad_word in filters):
+            if all(bad_word not in line.lower() for bad_word in filters):
                 new_file.write(line + "\n")
 
 
@@ -72,10 +72,7 @@ def clean(ctx):
 
 @task
 def changelog(ctx, version=None):
-    if version is not None:
-        version = f"-c {version}"
-    else:
-        version = ""
+    version = f"-c {version}" if version is not None else ""
     ctx.run(f"gcg -x -o {CHANGELOG} -O rpm {version}")
     filter_entries(CHANGELOG)
 
