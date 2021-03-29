@@ -6,6 +6,7 @@ import sys
 import stat
 import shutil
 import tarfile
+import gzip
 import zipfile
 import platform
 import tqdm
@@ -212,7 +213,7 @@ class WebDriverManagerBase:
 
         return None
 
-    def download(self, version="latest", show_progress_bar=True):
+    def download(self, version="latest", show_progress_bar=True, force=False):
         """
         Method for downloading a web driver binary.
 
@@ -230,9 +231,12 @@ class WebDriverManagerBase:
         filename_with_path = dl_path / filename
         dl_path.mkdir(parents=True, exist_ok=True)
         if filename_with_path.exists():
-            LOGGER.info("Skipping download. File %s already on filesystem.", filename_with_path)
-            return filename_with_path
-        # TODO: Extra the downloading ?
+            if force:
+                filename_with_path.unlink()
+            else:
+                LOGGER.info("Skipping download. File %s already on filesystem.", filename_with_path)
+                return filename_with_path
+
         data = requests.get(download_url, stream=True)
         if data.status_code == 200:
             LOGGER.debug("Starting download of %s to %s", download_url, filename_with_path)
@@ -251,6 +255,16 @@ class WebDriverManagerBase:
         raise_runtime_error(f"Error downloading file {filename}, got status code: {data.status_code}")
         return None
 
+    def _generate_archive_details(dl_path, filename):
+        if filename.lower().endswith(".tar.gz"):
+            return (dl_path / filename[:-7], 1)
+        elif filename.lower().endswith(".zip"):
+            return (dl_path / filename[:-4], 2)
+        elif filename.lower().endswith(".exe"):
+            return (dl_path / filename[:-4], 3)
+        else:
+            raise_runtime_error(f"Unknown archive format: {filename}")
+
     def download_and_install(self, version="latest", show_progress_bar=True):
         """
         Method for downloading a web driver binary, extracting it into the download directory and creating a symlink
@@ -264,43 +278,46 @@ class WebDriverManagerBase:
         :returns: Tuple containing the path + filename to [0] the extracted binary, and [1] the symlink to the
                   extracted binary.
         """
+        archive_type = 0
+        actual_driver_filename = None
+
         driver_filename = self.get_driver_filename()
         if driver_filename is None:
             raise_runtime_error(f"Error, unable to find appropriate drivername for {self.os_name}.")
 
-        filename_with_path = self.download(version, show_progress_bar=show_progress_bar)
-        filename = filename_with_path.name
-        dl_path = Path(self.get_download_path(version))
-        archive_type = 0
+        force = False
+        for _ in range(0, 2):
+            filename_with_path = self.download(version, show_progress_bar=show_progress_bar, force=force)
+            filename = filename_with_path.name
+            dl_path = Path(self.get_download_path(version))
 
-        if filename.lower().endswith(".tar.gz"):
-            extract_dir = dl_path / filename[:-7]
-            archive_type = 1
-        elif filename.lower().endswith(".zip"):
-            extract_dir = dl_path / filename[:-4]
-            archive_type = 2
-        elif filename.lower().endswith(".exe"):
-            extract_dir = dl_path / filename[:-4]
-            archive_type = 3
-        else:
-            raise_runtime_error(f"Unknown archive format: {filename}")
+            (extract_dir, archive_type) = self._generate_archive_details(dl_path, filename)
 
-        if not extract_dir.exists():
-            extract_dir.mkdir(parents=True, exist_ok=True)
-            LOGGER.debug("Created directory: %s", extract_dir)
+            if not extract_dir.exists():
+                extract_dir.mkdir(parents=True, exist_ok=True)
+                LOGGER.debug("Created directory: %s", extract_dir)
 
-        if archive_type == 1:
-            with tarfile.open(dl_path / filename, mode="r:*") as tar:
-                tar.extractall(extract_dir)
-                LOGGER.debug("Extracted files: %s", ", ".join(tar.getnames()))
-        elif archive_type == 2:
-            with zipfile.ZipFile(dl_path / filename, mode="r") as driver_zipfile:
-                driver_zipfile.extractall(extract_dir)
-                # TODO: Get filenames and log debug
-        elif archive_type == 3:
-            shutil.copy2(dl_path / filename, extract_dir / filename)
-
-        actual_driver_filename = None
+            try:
+                archive_file = dl_path / filename
+                if archive_type == 1:
+                    with tarfile.open(archive_file, mode="r:*") as tar:
+                        tar.extractall(extract_dir)
+                    LOGGER.debug("Extracted files: %s", ", ".join(tar.getnames()))
+                elif archive_type == 2:
+                    with zipfile.ZipFile(archive_file, mode="r") as driver_zipfile:
+                        driver_zipfile.extractall(extract_dir)
+                        # TODO: Get filenames and log debug
+                elif archive_type == 3:
+                    shutil.copy2(archive_file, extract_dir / filename)
+            except (gzip.BadGzipFile, tarfile.TarError, zipfile.BadZipFile):
+                force = True
+                LOGGER.debug(f"Downloaded archive {archive_file} seems to be corrupted - redownloading")
+                continue
+            except Exception as e:
+                raise_runtime_error(
+                    f"Unrecoverable error extracting {archive_file}. Try to remove the file and re-download.\n{e}"
+                )
+            break
 
         # TODO: Clean up
         for root, _, files in os.walk(extract_dir):
@@ -332,10 +349,8 @@ class WebDriverManagerBase:
             try:
                 symlink_stat = os.stat(symlink_src)
                 os.chmod(symlink_src, symlink_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-            except Exception:
-                # TODO: add error handling
-                pass
-
+            except Exception as e:
+                LOGGER.warning(f"Unable to change permissions of {symlink_src}.\n{e}")
             return (symlink_src, symlink_target)
 
         # self.os_name == 'win':
@@ -351,8 +366,6 @@ class WebDriverManagerBase:
         try:
             dest_stat = os.stat(dest_file)
             os.chmod(dest_file, dest_stat.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-        except Exception:
-            # TODO: add error handling
-            pass
-
+        except Exception as e:
+            LOGGER.warning(f"Unable to change permissions of {dest_file}.\n{e}")
         return (src_file, dest_file)
