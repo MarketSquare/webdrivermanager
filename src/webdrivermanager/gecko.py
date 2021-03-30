@@ -21,7 +21,10 @@ class GeckoDriverManager(WebDriverManagerBase):
 
     firefox_version_pattern = r"(\d+)(\.\d+)"
     firefox_version_commands = {
-        "win": ["reg", "query", r"HKEY_CURRENT_USER\Software\Mozilla\Mozilla Firefox", "/v", "CurrentVersion"],
+        "win": [
+            ["reg", "query", r"HKEY_LOCAL_MACHINE\Software\Mozilla\Mozilla Firefox", "/v", "CurrentVersion"],
+            ["reg", "query", r"HKEY_CURRENT_USER\Software\Mozilla\Mozilla Firefox", "/v", "CurrentVersion"],
+        ],
         "linux": ["firefox", "--version"],
         "mac": ["/Applications/Firefox.app/Contents/MacOS/firefox-bin", "--version"],
     }
@@ -71,16 +74,19 @@ class GeckoDriverManager(WebDriverManagerBase):
         raise_runtime_error(f"Unsupported Firefox version: {browser_version}")
 
     def _get_browser_version(self):
-        cmd = self.firefox_version_commands.get(self.os_name)
-        if not cmd:
+        commands = self.firefox_version_commands.get(self.os_name)
+        if not commands:
             raise NotImplementedError("Unsupported system: %s", self.os_name)
 
-        output = get_output(cmd)
-        if not output:
-            raise RuntimeError("Unable to read current browser version")
+        for cmd in commands:
+            output = get_output(cmd)
+            if not output:
+                continue
 
-        version = re.search(self.firefox_version_pattern, output)
-        if not version:
-            raise_runtime_error("Error, browser version does not match known pattern")
+            version = re.search(self.firefox_version_pattern, output)
+            if not version:
+                continue
 
-        return int(version.group(1))
+            return int(version.group(1))
+
+        raise_runtime_error("Error, browser version does not match known pattern")
