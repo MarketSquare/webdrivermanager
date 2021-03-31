@@ -41,7 +41,7 @@ The following classes are available:
 Status
 ------
 
-Currently being developed/tested using Python 2.7.15 and 3.7  on macOS, Windows & Linux
+Currently being developed/tested using Python iiiii 3.7, 3. on macOS, Windows & Linux. 
 
 
 Example module usage
@@ -92,34 +92,32 @@ In the above example, a version was specified for Chrome and Opera while no vers
 Command line options
 --------------------
 
-    usage: webdrivermanager [-h] [--downloadpath F] [--linkpath F] [--os OSNAME]
-              browser [browser ...]
+    usage: webdrivermanager [-h] [--downloadpath F] [--linkpath F] [--os OSNAME] [--bitness BITS] [--version] [--loglevel {debug,info,warning,error,critical}] browser [browser ...]
 
-        Tool for downloading and installing WebDriver binaries.
+    Tool for downloading and installing WebDriver binaries. Version: 0.9.0+29.g7163f88.dirty
 
-	positional arguments:
-	   browser               Browser to download the corresponding WebDriver
-				 binary. Valid values are: chrome, firefox, gecko,
-				 mozilla, opera, edge. Optionally specify a version
-				 number of the WebDriver binary as follows:
-				 'browser:version' e.g. 'chrome:2.39'. If no version
-				 number is specified, the latest available version of
-				 the WebDriver binary will be downloaded.
+    positional arguments:
+      browser               Browser to download the corresponding WebDriver binary.
+                            Valid values are:
+                            chrome firefox gecko mozilla opera edge edgechromium ie.
+                            Optionally specify a version number of the WebDriver binary as follows: 'browser:version' e.g. 'chrome:2.39'.
+                            If no version number is specified, 'compatible'  mode will be used for those brwosers that have the feature implemented.
+                            Version string can be exact version but it can also be 'latest' or `compatible`.
+                            'compatible' mode will probe for browsers version (if supported) and decide automatically which version should be download.
+                            `latest` will download the newest one
 
-        optional arguments:
-            -h, --help            show this help message and exit
-            --downloadpath F, -d F
-                                  Where to download the webdriver binaries
-            --linkpath F, -l F    Where to link the webdriver binary to. Set to "AUTO"
-                                  if you need some intelligence to decice where to place
-                                  the final webdriver binary
-            --linkpath F, -l F    Where to link the webdriver binary to. Set to "AUTO"
-                                  if you need some intelligense to decide where to place
-                                  the final webdriver binary. If set to "SKIP", no
-                                  link/copy done
-            --os OSNAME, -o OSNAME
-                                  Overrides os detection with given os name
-
+    optional arguments:
+      -h, --help            show this help message and exit
+      --downloadpath F, -d F
+                            Where to download the webdriver binaries
+      --linkpath F, -l F    Where to link the webdriver binary to. Set to "AUTO" if you need some intelligense to decide where to place the final webdriver binary. If set to "SKIP", no link/copy done.
+      --os OSNAME, -o OSNAME
+                            Overrides os detection with given os name. Values: mac win linux
+      --bitness BITS, -b BITS
+                            Overrides bitness detection with given value. Values: 32 64
+      --version             show program's version number and exit
+      --loglevel {debug,info,warning,error,critical}
+                            Log Level
 
 Do note that `--downloadpath`/`-d` flag location is used for storing the whole downloaded and then `--linkpath`/`-l` path location is where the final binary is either symlinled or copied to.  Linkpath should be the directory you either already have in PATH or you should place there since tools using these webdrivers usually locate the appropriate webdriver binary from PATH environment variable.
 

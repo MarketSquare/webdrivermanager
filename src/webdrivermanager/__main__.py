@@ -13,14 +13,27 @@ from .misc import LOGGER, LOG_LEVELS
 OS_NAMES = ["mac", "win", "linux"]
 BITNESS = ["32", "64"]
 
+class SmartFormatter(argparse.HelpFormatter):
+    def _split_lines(self, text, width):
+        if text.startswith('R|'):
+            return text[2:].splitlines()
+        # this is the RawTextHelpFormatter._split_lines
+        return argparse.HelpFormatter._split_lines(self, text, width)
 
 def parse_command_line():
     parser = argparse.ArgumentParser(
         description=f"Tool for downloading and installing WebDriver binaries. Version: {get_versions()['version']}",
+        formatter_class=SmartFormatter
     )
     parser.add_argument(
         "browser",
-        help=f"Browser to download the corresponding WebDriver binary.  Valid values are: {' '.join(DOWNLOADERS.keys())}. Optionally specify a version number of the WebDriver binary as follows: 'browser:version' e.g. 'chrome:2.39'.  If no version number is specified, the latest available version of the WebDriver binary will be downloaded.",
+        help=f"R|Browser to download the corresponding WebDriver binary.\nValid values are:\n"
+             f"{' '.join(DOWNLOADERS.keys())}.\n"
+             f"Optionally specify a version number of the WebDriver binary as follows: 'browser:version' e.g. 'chrome:2.39'.\n"
+             f"If no version number is specified, 'compatible'  mode will be used for those brwosers that have the feature implemented.\n"
+             f"Version string can be exact version but it can also be 'latest' or `compatible`.\n"
+             f"'compatible' mode will probe for browsers version (if supported) and decide automatically which version should be download.\n"
+             f"`latest` will download the newest one\n",
         nargs="+",
     )
     parser.add_argument(
