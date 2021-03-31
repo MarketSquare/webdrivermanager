@@ -25,8 +25,12 @@ class GeckoDriverManager(WebDriverManagerBase):
             ["reg", "query", r"HKEY_LOCAL_MACHINE\Software\Mozilla\Mozilla Firefox", "/v", "CurrentVersion"],
             ["reg", "query", r"HKEY_CURRENT_USER\Software\Mozilla\Mozilla Firefox", "/v", "CurrentVersion"],
         ],
-        "linux": ["firefox", "--version"],
-        "mac": ["/Applications/Firefox.app/Contents/MacOS/firefox-bin", "--version"],
+        "linux": [
+            ["firefox", "--version", "--headless"],
+        ],
+        "mac": [
+            ["/Applications/Firefox.app/Contents/MacOS/firefox-bin", "--version", "--headless"],
+        ],
     }
 
     def get_download_path(self, version="latest"):
