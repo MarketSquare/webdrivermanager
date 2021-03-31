@@ -255,6 +255,7 @@ class WebDriverManagerBase:
         raise_runtime_error(f"Error downloading file {filename}, got status code: {data.status_code}")
         return None
 
+    @staticmethod
     def _generate_archive_details(dl_path, filename):
         if filename.lower().endswith(".tar.gz"):
             return (dl_path / filename[:-7], 1)
@@ -302,7 +303,7 @@ class WebDriverManagerBase:
                 if archive_type == 1:
                     with tarfile.open(archive_file, mode="r:*") as tar:
                         tar.extractall(extract_dir)
-                    LOGGER.debug("Extracted files: %s", ", ".join(tar.getnames()))
+                        LOGGER.debug("Extracted files: %s", ", ".join(tar.getnames()))
                 elif archive_type == 2:
                     with zipfile.ZipFile(archive_file, mode="r") as driver_zipfile:
                         driver_zipfile.extractall(extract_dir)
