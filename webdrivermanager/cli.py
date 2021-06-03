@@ -45,6 +45,7 @@ def main():
             downloader = DOWNLOADERS[browser](args.downloadpath, args.linkpath, args.os_name, args.bitness)
             try:
                 extracted_binary, link = downloader.download_and_install(version)
+                print(extracted_binary, link)
             except ConnectionError:
                 print("Unable to download webdriver's at this time due to network connectivity error")
                 sys.exit(1)
