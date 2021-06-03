@@ -523,9 +523,10 @@ class EdgeDriverManager(WebDriverManagerBase):
 
     def _get_latest_version_number(self):
         # TODO: handle error 500 by sleep & retry here
-
+        print('here is a change')
         resp = requests.get(self.edge_driver_base_url+"/LATEST_STABLE")
-        print(resp.content.decode('utf-16'))
+        # print(resp.content.decode('utf-16'))
+        print(resp.status_code)
         if resp.status_code != 200:
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
