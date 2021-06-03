@@ -223,6 +223,7 @@ class WebDriverManagerBase:
         (download_url, filename) = self.get_download_url(version)
 
         dl_path = self.get_download_path(version)
+        print(download_url, filename, dl_path)
         filename_with_path = os.path.join(dl_path, filename)
         if not os.path.isdir(dl_path):
             os.makedirs(dl_path)
@@ -491,7 +492,7 @@ class EdgeDriverManager(WebDriverManagerBase):
         'linux': None,
     }
 
-    edge_driver_base_url = 'https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/'
+    edge_driver_base_url = 'https://msedgedriver.azureedge.net/'
 
     def _get_download_url(self, body, version):
         try:
@@ -522,17 +523,20 @@ class EdgeDriverManager(WebDriverManagerBase):
 
     def _get_latest_version_number(self):
         # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url)
+
+        resp = requests.get(self.edge_driver_base_url+"/LATEST_STABLE")
+        print(resp.content.decode('utf-16'))
         if resp.status_code != 200:
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
-        return self._get_version_number(resp)
+        return str(resp.content.decode('utf-16'))
 
     def get_download_path(self, version='latest'):
         if version == 'latest':
             ver = self._get_latest_version_number()
         else:
             ver = version
+        print(self.download_root, 'edge', ver)
         return os.path.join(self.download_root, 'edge', ver)
 
     def get_download_url(self, version='latest'):
@@ -555,6 +559,7 @@ class EdgeDriverManager(WebDriverManagerBase):
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
         url = self._get_download_url(resp, version)
+        print(url, os.path.split(urlparse(url).path)[1])
         return (url, os.path.split(urlparse(url).path)[1])
 
 
