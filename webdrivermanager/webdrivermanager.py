@@ -533,6 +533,7 @@ class EdgeDriverManager(WebDriverManagerBase):
         return str(resp.content.decode('utf-16'))
 
     def get_download_path(self, version='latest'):
+        print(version)
         if version == 'latest':
             ver = self._get_latest_version_number()
         else:
