@@ -221,7 +221,6 @@ class WebDriverManagerBase:
         :returns: The path + filename to the downloaded web driver binary.
         """
         (download_url, filename) = self.get_download_url(version)
-
         dl_path = self.get_download_path(version)
         filename_with_path = os.path.join(dl_path, filename)
         if not os.path.isdir(dl_path):
@@ -491,42 +490,44 @@ class EdgeDriverManager(WebDriverManagerBase):
         'linux': None,
     }
 
-    edge_driver_base_url = 'https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/'
+    edge_driver_base_url = 'https://msedgedriver.azureedge.net/'
 
-    def _get_download_url(self, body, version):
-        try:
-            tree = BeautifulSoup(body.text, 'html.parser')
-            mstr = 'Release {}'.format(version)
-            link_texts = tree.find_all('a', string=re.compile(mstr))
-            if 'index.html' in link_texts[0]['href']:
-                local_bitness = self.bitness
-                if local_bitness == "32":
-                    local_bitness = "86"
-                mstr = "WebDriver for release number {} x{}".format(version, local_bitness)
-                link_texts = tree.find_all('a', {"aria-label": re.compile(mstr)})
-            return link_texts[0]['href']
-        except Exception:
-            return None
-
-    def _get_version_number(self, body):
-        try:
-            tree = BeautifulSoup(body.text, 'html.parser')
-            link_texts = tree.find_all('a', string=re.compile('Release '))
-            results = re.findall(r'\"WebDriver for release number ([\d\.]+)\"', str(link_texts[0]))
-            if bool(results and results[0]):
-                return results[0]
-
-            return None
-        except Exception:
-            return None
+    # I don't think these are needed anymore, but leaving them here just in case.
+    # def _get_download_url(self, body, version):
+    #     print('get download url', body, version)
+    #     try:
+    #         tree = BeautifulSoup(body.text, 'html.parser')
+    #         mstr = 'Release {}'.format(version)
+    #         link_texts = tree.find_all('a', string=re.compile(mstr))
+    #         if 'index.html' in link_texts[0]['href']:
+    #             local_bitness = self.bitness
+    #             if local_bitness == "32":
+    #                 local_bitness = "86"
+    #             mstr = "WebDriver for release number {} x{}".format(version, local_bitness)
+    #             link_texts = tree.find_all('a', {"aria-label": re.compile(mstr)})
+    #         return link_texts[0]['href']
+    #     except Exception:
+    #         return None
+    #
+    # def _get_version_number(self, body):
+    #     try:
+    #         tree = BeautifulSoup(body.text, 'html.parser')
+    #         link_texts = tree.find_all('a', string=re.compile('Release '))
+    #         results = re.findall(r'\"WebDriver for release number ([\d\.]+)\"', str(link_texts[0]))
+    #         if bool(results and results[0]):
+    #             return results[0]
+    #
+    #         return None
+    #     except Exception:
+    #         return None
 
     def _get_latest_version_number(self):
         # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url)
+        resp = requests.get(self.edge_driver_base_url+"/LATEST_STABLE")
         if resp.status_code != 200:
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
-        return self._get_version_number(resp)
+        return str(resp.content.decode('utf-16').rstrip())
 
     def get_download_path(self, version='latest'):
         if version == 'latest':
@@ -553,9 +554,11 @@ class EdgeDriverManager(WebDriverManagerBase):
         resp = requests.get(self.edge_driver_base_url)
         if resp.status_code != 200:
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
-
-        url = self._get_download_url(resp, version)
-        return (url, os.path.split(urlparse(url).path)[1])
+        if self.bitness == "32":
+            url = self.edge_driver_base_url + str(version) + "/edgedriver_win32.zip"
+        else:
+            url = self.edge_driver_base_url+str(version)+"/edgedriver_win64.zip"
+        return url, os.path.split(urlparse(url).path)[1]
 
 
 class IEDriverManager(WebDriverManagerBase):
