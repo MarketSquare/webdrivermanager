@@ -11,6 +11,7 @@ import os.path
 import tarfile
 import zipfile
 import platform
+import time
 
 import tqdm
 import requests
@@ -550,10 +551,14 @@ class EdgeDriverManager(WebDriverManagerBase):
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
-        # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url)
+        for i in range(60):
+            resp = requests.get(self.edge_driver_base_url)
+            if resp.status_code == 200:
+                break
+            else:
+                time.sleep(1)
         if resp.status_code != 200:
-            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
+            raise_runtime_error('Error, unable to download release, got code: {0}'.format(resp.status_code))
         if self.bitness == "32":
             url = self.edge_driver_base_url + str(version) + "/edgedriver_win32.zip"
         else:
