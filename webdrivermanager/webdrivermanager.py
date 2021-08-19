@@ -577,14 +577,18 @@ class IEDriverManager(WebDriverManagerBase):
     def _extract_ver(self, s):
         matcher = r".*\/IEDriverServer_(x64|Win32)_(\d+\.\d+\.\d+)\.zip"
         ret = re.match(matcher, s)
-        return ret.group(2)
+        try:
+            find = ret.group(2)
+        except AttributeError:
+            return "0.0.0"
+        return find
 
     def _populate_cache(self, url):
         resp = requests.get(self.ie_driver_base_url)
         if resp.status_code != 200:
             raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
-        soup = BeautifulSoup(resp.text, 'lxml')
+        soup = BeautifulSoup(resp.text, "lxml")
         drivers = filter(lambda entry: 'IEDriverServer_' in entry.contents[0], soup.find_all('key'))
         self._drivers = list(map(lambda entry: entry.contents[0], drivers))
         self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))
@@ -601,10 +605,7 @@ class IEDriverManager(WebDriverManagerBase):
     }
 
     def get_download_path(self, version='latest'):
-        if version == 'latest':
-            ver = self._get_latest_version_number()
-        else:
-            ver = version
+        ver = self._get_latest_version_number() if version == 'latest' else version
         return os.path.join(self.download_root, 'ie', ver)
 
     def get_download_url(self, version='latest'):
@@ -631,11 +632,12 @@ class IEDriverManager(WebDriverManagerBase):
         matcher = r'.*/.*_{0}{1}_{2}'.format(local_osname, self.bitness, version)
         entry = [entry for entry in self._drivers if re.match(matcher, entry)]
         if not entry:
-            raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
+            raise_runtime_error('Error, unable to find appropriate download '
+                                'for {0}{1}.'.format(self.os_name, self.bitness))
 
         url = "{0}/{1}".format(self.ie_driver_base_url, entry[0])
         filename = os.path.basename(entry[0])
-        return (url, filename)
+        return url, filename
 
 
 AVAILABLE_DRIVERS = {
