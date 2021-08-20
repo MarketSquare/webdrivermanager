@@ -1,5 +1,11 @@
-requests
-tqdm
-BeautifulSoup4
-appdirs
+requests~=2.26.0
+tqdm~=4.62.0
+BeautifulSoup4~=4.9.3
+appdirs~=1.4.4
 lxml
+
+webdrivermanager~=0.7.4
+flaky~=3.7.0
+setuptools~=57.4.0
+unittest-xml-reporting~=3.0.4
+pyfakefs~=4.5.0
