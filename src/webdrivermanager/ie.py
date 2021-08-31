@@ -11,6 +11,7 @@ class IEDriverManager(WebDriverManagerBase):
     """Class for downloading Internet Explorer WebDriver."""
 
     ie_driver_base_url = "https://selenium-release.storage.googleapis.com"
+    file_name_regex = r".*\/IEDriverServer_(x64|Win32)_(\d+\.\d+\.\d+)\.zip"
     _drivers = None
     _versions = None
 
@@ -63,7 +64,7 @@ class IEDriverManager(WebDriverManagerBase):
         raise NotImplementedError
 
     def _extract_ver(self, s):
-        matcher = r".*\/IEDriverServer_(x64|Win32)_(\d+\.\d+\.\d+)\.zip"
+        matcher = self.file_name_regex
         ret = re.match(matcher, s)
         return ret.group(2)
 
@@ -73,6 +74,6 @@ class IEDriverManager(WebDriverManagerBase):
             raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
 
         soup = BeautifulSoup(resp.text, "lxml")
-        drivers = filter(lambda entry: "IEDriverServer_" in entry.contents[0], soup.find_all("key"))
+        drivers = filter(lambda entry: re.match(self.file_name_regex, entry.contents[0]), soup.find_all("key"))
         self._drivers = list(map(lambda entry: entry.contents[0], drivers))
         self._versions = set(map(lambda entry: versiontuple(self._extract_ver(entry)), self._drivers))
