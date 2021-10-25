@@ -523,18 +523,19 @@ class EdgeDriverManager(WebDriverManagerBase):
     #         return None
 
     def _get_latest_version_number(self):
-        # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url+"/LATEST_STABLE")
+        for _ in range(60):
+            resp = requests.get(self.edge_driver_base_url+"/LATEST_STABLE")
+            if resp.status_code == 200:
+                break
+            else:
+                time.sleep(1)
         if resp.status_code != 200:
-            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
-
+            raise_runtime_error('Error, unable to get latest stable version for Edge, '
+                                'got code: {0}'.format(resp.status_code))
         return str(resp.content.decode('utf-16').rstrip())
 
     def get_download_path(self, version='latest'):
-        if version == 'latest':
-            ver = self._get_latest_version_number()
-        else:
-            ver = version
+        ver = self._get_latest_version_number() if version == 'latest' else version
         return os.path.join(self.download_root, 'edge', ver)
 
     def get_download_url(self, version='latest'):
@@ -551,14 +552,15 @@ class EdgeDriverManager(WebDriverManagerBase):
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
-        for i in range(60):
+        for _ in range(60):
             resp = requests.get(self.edge_driver_base_url)
             if resp.status_code == 200:
                 break
             else:
                 time.sleep(1)
         if resp.status_code != 200:
-            raise_runtime_error('Error, unable to download release, got code: {0}'.format(resp.status_code))
+            raise_runtime_error('Error, unable to process edge release for version' + version +
+                                ', got code: {0}'.format(resp.status_code))
         if self.bitness == "32":
             url = self.edge_driver_base_url + str(version) + "/edgedriver_win32.zip"
         else:
