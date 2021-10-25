@@ -129,3 +129,14 @@ License
 This is released under an MIT license.  See the ``LICENSE`` file in this repository for more information.
 
 Consult the license terms of the providers of the WebDriver downloads prior to downloading / using the WebDrivers.
+
+Local Testing
+-------------
+
+Here are some command line scripts to run for testing code fixes:
+    EDGE:
+        - webdrivermanager edge --downloadpath "C:\Temp"
+        - webdrivermanager edge --bitness:32 --downloadpath "C:\Temp"
+        - webdrivermanager edge --bitness:64 --downloadpath "C:\Temp"
+        - webdrivermanager edge:95.0.1020.5 --bitness:32 --downloadpath "C:\Temp"
+        - webdrivermanager edge:95.0.1020.5 --bitness:64 --downloadpath "C:\Temp"
