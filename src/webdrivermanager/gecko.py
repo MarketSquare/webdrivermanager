@@ -69,7 +69,7 @@ class GeckoDriverManager(WebDriverManagerBase):
         # Map browser version to webdriver version
         # https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
         browser_version = self._get_browser_version()
-        version_map = [(60, "v0.29.0"), (57, "v0.25.0"), (55, "v0.20.1"), (53, "v0.18.0"), (52, "v0.17.0")]
+        version_map = [(78,"v0.30.0"), (60, "v0.29.0"), (57, "v0.25.0"), (55, "v0.20.1"), (53, "v0.18.0"), (52, "v0.17.0")]
 
         for browser_minimum, driver_version in version_map:
             if browser_version >= browser_minimum:
