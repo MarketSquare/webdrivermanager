@@ -52,7 +52,7 @@ class WebDriverManagerBase:
             self.bitness = bitness
 
         self.os_name = os_name or self.get_os_name()
-        self.dirs = AppDirs("WebDriverManager", "rasjani")
+        self.dirs = AppDirs("WebDriverManager", os.getlogin())
         base_path = self._get_basepath()
         self.download_root = Path(download_root or base_path)
 
