@@ -12,7 +12,7 @@ class EdgeDriverManagerTestsWithAutomaticLocations(AutomaticBaseTest):
 
     @flaky
     def test_download(self):
-        self.instance = self.DRIVER_MANAGER(os_name="win")
+        self.instance = self.DRIVER_MANAGER()
         filename = self.instance.download(show_progress_bar=False)
         self.assertTrue(filename.is_file(), NO_FILE)
 
