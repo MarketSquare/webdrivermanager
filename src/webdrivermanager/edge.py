@@ -35,12 +35,7 @@ class EdgeDriverManager(WebDriverManagerBase):
         version = self._parse_version(version)
         LOGGER.debug("Detected OS: %sbit %s", self.bitness, self.os_name)
 
-        # TODO: handle error 500 by sleep & retry here
-        resp = requests.get(self.edge_driver_base_url)
-        if resp.status_code != 200:
-            raise_runtime_error(f"Error, unable to get version number for latest release, got code: {resp.status_code}")
-
-        url = self._get_download_url(resp, version)
+        url = self._get_download_url(version)
         return url, os.path.split(urlparse(url).path)[1]
 
     def get_latest_version(self):
@@ -49,7 +44,7 @@ class EdgeDriverManager(WebDriverManagerBase):
     def get_compatible_version(self):
         raise NotImplementedError
 
-    def _get_download_url(self, body, version):
+    def _get_download_url(self, version):
         try:
             latest_stable_download_urls = {
                 "mac": "https://msedgedriver.azureedge.net/98.0.1108.62/edgedriver_mac64.zip",
