@@ -553,7 +553,7 @@ class EdgeDriverManager(WebDriverManagerBase):
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
         for _ in range(60):
-            resp = requests.get(self.edge_driver_base_url)
+            resp = requests.get(self.edge_driver_base_url + str(version) + "/edgedriver_win32.zip")
             if resp.status_code == 200:
                 break
             else:
