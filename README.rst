@@ -32,7 +32,6 @@ The following classes are available:
 
 - ``ChromeDriverManager`` for downloading and installing `chromedriver <https://sites.google.com/a/chromium.org/chromedriver/downloads>`_ (for Google Chrome).
 - ``GeckoDriverManager`` for downloading and installing `geckodriver <https://github.com/mozilla/geckodriver>`_ (for Mozilla Firefox).
-- ``OperaChromiumDriverManager`` for downloading and installing `operadriver <https://github.com/operasoftware/operachromiumdriver>`_ (for Chromium based Opera browsers).
 - ``EdgeDriverManager`` for downloading and installing `edgedriver <https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/>`_ (for Microsoft Edge).
 - ``EdgeChromiumDriverManager`` for downloading and installing Edge Chromium based webdrivers
 - ``IeDriverManager`` for downloading and installing Internet Explorer based webdrivers
@@ -69,7 +68,7 @@ Command line tool
 
 There is a command-line tool that is also available.  After installing the package, it can be used as follows (Windows example)::
 
-   > webdrivermanager chrome:2.38 firefox opera:v.2.35
+   > webdrivermanager chrome:2.38 firefox 
    Downloading WebDriver for browser: 'chrome'
    3300kb [00:00, 11216.38kb/s]
    Driver binary downloaded to: C:\Users\rasjani\webdriver\chrome\2.38\2.38%2Fchromedriver_win32\chromedriver.exe
@@ -80,14 +79,9 @@ There is a command-line tool that is also available.  After installing the packa
    Driver binary downloaded to: C:\Users\rasjani\webdriver\gecko\v0.20.1\geckodriver-v0.20.1-win64\geckodriver.exe
    Driver copied to: C:\Users\rasjani\bin\geckodriver.exe
 
-   Downloading WebDriver for browser: 'opera'
-   3548kb [00:02, 1239.02kb/s]
-   Driver binary downloaded to: C:\Users\rasjani\webdriver\operachromium\v.2.35\operadriver_win64\operadriver_win64\operadriver.exe
-   Driver copied to: C:\Users\rasjani\bin\operadriver.exe
-
    WARNING: Path 'C:\Users\rasjani\bin' is not in the PATH environment variable.
 
-In the above example, a version was specified for Chrome and Opera while no version was specified for Firefox so the latest version of ``geckodriver`` was implicitly downloaded.
+In the above example, a version was specified for Chrome while no version was specified for Firefox so the latest version of ``geckodriver`` was implicitly downloaded.
 
 Command line options
 --------------------
@@ -100,7 +94,7 @@ Command line options
 	positional arguments:
 	   browser               Browser to download the corresponding WebDriver
 				 binary. Valid values are: chrome, firefox, gecko,
-				 mozilla, opera, edge. Optionally specify a version
+				 mozilla, edge. Optionally specify a version
 				 number of the WebDriver binary as follows:
 				 'browser:version' e.g. 'chrome:2.39'. If no version
 				 number is specified, the latest available version of
