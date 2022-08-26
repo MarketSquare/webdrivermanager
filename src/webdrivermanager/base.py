@@ -141,7 +141,7 @@ class WebDriverManagerBase:
 
     def get_mac_cpu_type(self):
         # Identify mac CPU type, refer to https://stackoverflow.com/questions/65970469/what-does-platform-system-and-platform-architecture-return-on-apple-m1-silic
-        return "m1" if platform.processor() is "arm" else "intel" if self.os_name == "mac" else ""
+        return "m1" if platform.processor() ==  "arm" else "intel" if self.os_name == "mac" else ""
 
     def _parse_version(self, version):
         method = version.strip().lower()
@@ -181,13 +181,13 @@ class WebDriverManagerBase:
         filenames = [asset["name"] for asset in response.json()["assets"]]
         filename = [name for name in filenames if self.os_name in name]
         mac_cpu_type = self.get_mac_cpu_type()
-        
+
         if not filename:
             raise_runtime_error(f"Error, unable to find a download for os: {self.os_name}")
 
         if len(filename) > 1:
-            if self.os_name is "mac":
-                filename = [name for name in filenames if "aarch64" in name] if mac_cpu_type is "arm" else [name for name in filenames if "aarch64" not in name]
+            if self.os_name == "mac":
+                filename = [name for name in filenames if "aarch64" in name] if mac_cpu_type == "arm" else [name for name in filenames if "aarch64" not in name]
             else:
                 filename = [name for name in filenames if self.os_name + self.bitness in name and not name.endswith(".asc")]
                 if len(filename) != 1:
@@ -292,7 +292,7 @@ class WebDriverManagerBase:
         actual_driver_filename = None
 
         driver_filename = self.get_driver_filename()
-        if driver_filename is None:
+        if driver_filename == None:
             raise_runtime_error(f"Error, unable to find appropriate drivername for {self.os_name}.")
 
         force = False
