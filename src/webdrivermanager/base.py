@@ -47,7 +47,7 @@ class WebDriverManagerBase:
         """
 
         if not bitness:
-            self.bitness = "64" if sys.maxsize > 2 ** 32 else "32"  # noqa: KEK100
+            self.bitness = "64" if sys.maxsize > 2**32 else "32"  # noqa: KEK100
         else:
             self.bitness = bitness
 
@@ -141,7 +141,7 @@ class WebDriverManagerBase:
 
     def get_mac_cpu_type(self):
         # Identify mac CPU type, refer to https://stackoverflow.com/questions/65970469/what-does-platform-system-and-platform-architecture-return-on-apple-m1-silic
-        return "m1" if platform.processor() ==  "arm" else "intel" if self.os_name == "mac" else ""
+        return "m1" if platform.processor() == "arm" else "intel" if self.os_name == "mac" else ""
 
     def _parse_version(self, version):
         method = version.strip().lower()
@@ -187,7 +187,11 @@ class WebDriverManagerBase:
 
         if len(filename) > 1:
             if self.os_name == "mac":
-                filename = [name for name in filenames if "aarch64" in name] if mac_cpu_type == "arm" else [name for name in filenames if "aarch64" not in name]
+                filename = (
+                    [name for name in filenames if "aarch64" in name]
+                    if mac_cpu_type == "arm"
+                    else [name for name in filenames if "aarch64" not in name]
+                )
             else:
                 filename = [name for name in filenames if self.os_name + self.bitness in name and not name.endswith(".asc")]
                 if len(filename) != 1:
@@ -292,7 +296,7 @@ class WebDriverManagerBase:
         actual_driver_filename = None
 
         driver_filename = self.get_driver_filename()
-        if driver_filename == None:
+        if not driver_filename:
             raise_runtime_error(f"Error, unable to find appropriate drivername for {self.os_name}.")
 
         force = False
@@ -325,7 +329,7 @@ class WebDriverManagerBase:
                 continue
             except Exception as e:
                 raise_runtime_error(
-                    f"Unrecoverable error extracting {archive_file}. Try to remove the file and re-download.\n{e}"
+                    f"Unrecoverable error extracting {archive_file}. Try to remove the file and re-download.\n{e}",
                 )
             break
 

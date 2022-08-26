@@ -1,16 +1,14 @@
 twine
 flake8
 flake8-formatter-junit-xml
-flake8-self; python_version > '3.0'
-flake8-eradicate; python_version > '3.0'
-flake8-alfred; python_version > '3.0'
-flake8-tabs; python_version > '3.0'
+flake8-self
+flake8-eradicate
+flake8-alfred
 flake8-builtins
 flake8-commas
 python-language-server[all]
 coverage
-unittest-xml-reporting; python_version > '3.0'
-unittest-xml-reporting==2.5.2; python_version < '3.0'
+unittest-xml-reporting
 invoke
 flaky
 gcg
@@ -18,6 +16,6 @@ tox
 tox-pyenv
 tox-venv
 pytest
-mypy; python_version > '3.5'
+mypy
 black
 -r requirements.txt
