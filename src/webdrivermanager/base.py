@@ -397,6 +397,6 @@ class WebDriverManagerBase:
             cols=row.find_all('td')
             if len(cols) > 0:
                 cols=[x.text.strip() for x in cols ]
-                version_map.append((cols[2].split(" ")[0], cols[0]))
+                version_map.append((int(cols[2].split(" ")[0]), cols[0]))
 
         return version_map
