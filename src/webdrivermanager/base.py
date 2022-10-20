@@ -383,3 +383,20 @@ class WebDriverManagerBase:
         except Exception as e:
             LOGGER.warning(f"Unable to change permissions of {dest_file}.\n{e}")
         return (src_file, dest_file)
+
+
+    def _get_gecko_mappings():
+        URL = 'https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html'
+        page = requests.get( URL )
+        soup = BeautifulSoup( page.content , 'lxml')
+
+        table = soup.find("div", {"id": "supported-platforms"}).find("table")
+        rows = table.find_all('tr')
+        version_map = []
+        for row in rows:
+            cols=row.find_all('td')
+            if len(cols) > 0:
+                cols=[x.text.strip() for x in cols ]
+                version_map.append((cols[0], cols[2].split(" ")[0]))
+
+        return version_map
