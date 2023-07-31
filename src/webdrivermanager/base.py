@@ -188,9 +188,9 @@ class WebDriverManagerBase:
         if len(filename) > 1:
             if self.os_name == "mac":
                 filename = (
-                    [name for name in filenames if "aarch64" in name]
-                    if mac_cpu_type == "arm"
-                    else [name for name in filenames if "aarch64" not in name]
+                    [name for name in filenames if "aarch64" in name and "macos" in name]
+                    if mac_cpu_type == "arm" or mac_cpu_type == "m1"
+                    else [name for name in filenames if "aarch64" not in name and "macos" in name]
                 )
             else:
                 filename = [name for name in filenames if self.os_name + self.bitness in name and not name.endswith(".asc")]
