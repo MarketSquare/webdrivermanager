@@ -11,7 +11,7 @@ class EdgeChromiumDriverManager(WebDriverManagerBase):
     """Class for downloading Edge Chromium WebDriver."""
 
     edgechromium_driver_base_url = (
-        "https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver?maxresults=1000&comp=list&timeout=60000"
+        "https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver?comp=list&timeout=60000"
     )
     _drivers = None
     _versions = None
