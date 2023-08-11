@@ -381,15 +381,17 @@ class ChromeDriverManager(WebDriverManagerBase):
     """Class for downloading the Google Chrome WebDriver.
     """
 
-    chrome_driver_base_url = 'https://www.googleapis.com/storage/v1/b/chromedriver'
+    chrome_driver_base_url = 'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json'
 
     def _get_latest_version_number(self):
-        resp = requests.get(self.chrome_driver_base_url + '/o/LATEST_RELEASE')
+        resp = requests.get(self.chrome_driver_base_url)
         if resp.status_code != 200:
-            raise_runtime_error('Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
+            raise RuntimeError(
+                'Error, unable to get version number for latest release, got code: {0}'.format(resp.status_code))
 
-        latest_release = requests.get(resp.json()['mediaLink'])
-        return latest_release.text
+        # Extract latest 'chromedriver' version from JSON data
+        version_number = resp.json()['channels']['Stable']['version']
+        return version_number
 
     driver_filenames = {
         'win': 'chromedriver.exe',
@@ -406,37 +408,41 @@ class ChromeDriverManager(WebDriverManagerBase):
 
     def get_download_url(self, version='latest'):
         """
-        Method for getting the download URL for the Google Chome driver binary.
+        Method for getting the download URL for the Google Chrome driver binary.
 
-        :param version: String representing the version of the web driver binary to download.  For example, "2.39".
-                        Default if no version is specified is "latest".  The version string should match the version
+        :param version: String representing the version of the web driver binary to download. For example, "2.39".
+                        Default if no version is specified is "latest". The version string should match the version
                         as specified on the download page of the webdriver binary.
         :returns: The download URL for the Google Chrome driver binary.
         """
-        if version == 'latest':
-            version = self._get_latest_version_number()
+        # Just getting latest here, so no need to check for version
+        # if version == 'latest':
+        #     version = self._get_latest_version_number()
 
         LOGGER.debug('Detected OS: %sbit %s', self.bitness, self.os_name)
 
-        chrome_driver_objects = requests.get(self.chrome_driver_base_url + '/o').json()
-        # chromedriver only has 64 bit versions of mac and 32bit versions of windows. For now.
-        if self.os_name == 'win':
-            local_bitness = '32'
-        elif self.os_name == 'mac':
-            local_bitness = '64'
+        chrome_driver_objects = requests.get(self.chrome_driver_base_url).json()
+        chromedriver_list = chrome_driver_objects['channels']['Stable']['downloads']['chromedriver']
+
+        # Handle special case for 'win' to match the provided JSON structure
+        if self.os_name.lower() == "win":
+            platform = "{}{}".format(self.os_name.lower(), self.bitness)
         else:
-            local_bitness = self.bitness
+            platform = "{}-{}".format(self.os_name.lower(), self.bitness)
 
-        matcher = r'{0}/.*{1}{2}.*'.format(version, self.os_name, local_bitness)
+        url = None
+        filename = None
+        print(chromedriver_list)
+        for entry in chromedriver_list:
+            print("Checking against platform:", entry['platform'])  # Debugging statement
+            if entry['platform'] == platform:
+                url = entry['url']
+                filename = url.split("/")[-1]
+                break
 
-        entry = [obj for obj in chrome_driver_objects['items'] if re.match(matcher, obj['name'])]
-        if not entry:
-            raise_runtime_error('Error, unable to find appropriate download for {0}{1}.'.format(self.os_name, self.bitness))
-
-        url = entry[0]['mediaLink']
-        filename = os.path.basename(entry[0]['name'])
+        if not url:
+            raise ValueError("Could not find a matching chromedriver for the platform: {}".format(platform))
         return (url, filename)
-
 
 class OperaChromiumDriverManager(WebDriverManagerBase):
     """Class for downloading the Opera Chromium WebDriver.
@@ -651,3 +657,4 @@ AVAILABLE_DRIVERS = {
     'edge': EdgeDriverManager,
     'ie': IEDriverManager,
 }
+
