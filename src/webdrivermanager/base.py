@@ -239,8 +239,10 @@ class WebDriverManagerBase:
         :returns: The path + filename to the downloaded web driver binary.
         """
         (download_url, filename) = self.get_download_url(version)
-
+        print(filename)
+        print("dwnld_url", download_url)
         dl_path = Path(self.get_download_path(version))
+        print("dl_path", dl_path)
         filename_with_path = dl_path / filename
         dl_path.mkdir(parents=True, exist_ok=True)
         if filename_with_path.exists():
@@ -313,11 +315,13 @@ class WebDriverManagerBase:
 
             try:
                 archive_file = dl_path / filename
+                print("archivetype", archive_file)
                 if archive_type == 1:
                     with tarfile.open(archive_file, mode="r:*") as tar:
                         tar.extractall(extract_dir)
                         LOGGER.debug("Extracted files: %s", ", ".join(tar.getnames()))
                 elif archive_type == 2:
+
                     with zipfile.ZipFile(archive_file, mode="r") as driver_zipfile:
                         driver_zipfile.extractall(extract_dir)
                         # TODO: Get filenames and log debug

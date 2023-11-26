@@ -3,10 +3,11 @@ import requests
 import re
 from pathlib import Path
 from .base import WebDriverManagerBase
+from .common_chrome import CommonWebDriverManager
 from .misc import LOGGER, raise_runtime_error, get_output
 
 
-class ChromeDriverManager(WebDriverManagerBase):
+class ChromeDriverManager(CommonWebDriverManager):
     """Class for downloading the Google Chrome WebDriver."""
 
     chrome_driver_base_url = "https://www.googleapis.com/storage/v1/b/chromedriver"

@@ -2,6 +2,7 @@
 
 from .base import WebDriverManagerBase
 from .chrome import ChromeDriverManager
+from .chrometest import ChromeDriverForTest
 from .gecko import GeckoDriverManager
 from .edge import EdgeDriverManager
 from .ie import IEDriverManager
@@ -14,6 +15,7 @@ AVAILABLE_DRIVERS = {
     "firefox": GeckoDriverManager,
     "gecko": GeckoDriverManager,
     "mozilla": GeckoDriverManager,
+    "chrometest": ChromeDriverForTest,
     "edge": EdgeDriverManager,
     "edgechromium": EdgeChromiumDriverManager,
     "ie": IEDriverManager,
@@ -25,6 +27,7 @@ __all__ = [
     "GeckoDriverManager",
     "EdgeDriverManager",
     "IEDriverManager",
+    "ChromeDriverForTest"
     "EdgeChromiumDriverManager",
     "get_version",
     "AVAILABLE_DRIVERS",
